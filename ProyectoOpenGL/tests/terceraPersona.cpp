@@ -22,9 +22,10 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-//Exercise 12 Task 4
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
+glm::vec3 cubeRotation = glm::vec3(0.0f);
+glm::vec3 cameraPosition(0.0f, 0.0f, 5.0f);
+Camera camera(cameraPosition);
 glm::vec3 cubePosition(0.0f, 0.0f, 0.0f);
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -33,6 +34,12 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+float xoffset = 0.0f;
+float yoffset = 0.0f;
+
+float sensitivity = 0.01;
+
 
 int main()
 {
@@ -395,8 +402,9 @@ int main()
         ourShader.setMat4("projection", projection);
 
         // set view matrix
-        glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("view", view);
+        glm::mat4 model = glm::mat4(1.0f);
+        ourShader.setMat4("model", model);
+        
 
         // bind vertex array
         glBindVertexArray(VAO);
@@ -404,7 +412,8 @@ int main()
         // render cubes
         for (unsigned int i = 0; i < 9; i++)
         {
-            glm::mat4 model = glm::mat4(1.0f);
+            
+            glm::mat4 view = camera.GetViewMatrix();
 
             // Base position
             glm::vec3 newPos = cubePositions[i];
@@ -414,14 +423,30 @@ int main()
                 glBindTexture(GL_TEXTURE_2D, texture2);
                 glBindBuffer(GL_ARRAY_BUFFER, VBO1);
 
+                const float radius = 5.0f;
+                float camX =  0.0f;
+                float camZ =  radius;
+                float angle = 180.0f;
+
+
+
                 // Move the cube with the camera position but with an offset
                 glm::vec3 offset = glm::vec3(0.0f, 0.0f, -5.0f); // Adjust this offset as needed
                 newPos = camera.Position + offset;
 
-                // Rotate the cube over time
-                model = glm::translate(model, newPos);
-                float angle = 180.0f * (i + 1);
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+                cubePosition.x += xoffset * sensitivity;
+                //cubePosition.y += yoffset * sensitivity;
+
+                view = glm::translate(view, newPos + cubePosition);
+                
+                view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+
+                view = glm::rotate(view, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+
+                
+                
             }
             else if (i >= 1 && i < 5)
             {
@@ -432,7 +457,7 @@ int main()
                 newPos.x += sin(timeValue + i) * 2.0f;
                 newPos.y += cos(timeValue + i) * 2.0f;
                 newPos.z += sin(timeValue + i) * 2.0f;*/
-                model = glm::translate(model, newPos);
+                view = glm::translate(view, newPos);
             }
             else if (i >= 5 && i < 8)
             {
@@ -440,16 +465,19 @@ int main()
                 glBindBuffer(GL_ARRAY_BUFFER, VBO3);
 
                 // Scale the cube over time
-                model = glm::translate(model, newPos);
+                view = glm::translate(view, newPos);
                 /*float scale = sin(timeValue) * 0.5f + 1.0f;
                 model = glm::scale(model, glm::vec3(scale, scale, scale));*/
             }
-
-            ourShader.setMat4("model", model);
+            ourShader.setMat4("view", view);
+            
 
             // Render the cube
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        xoffset = 0.0f;
+        yoffset = 0.0f;
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -489,7 +517,7 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
     //If I want to stay in ground level (xz plane)
-    //camera.Position.y = 0.0f;
+    camera.Position.y = 0.0f;
 	
 }
 
@@ -513,13 +541,17 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    xoffset = xpos - lastX;
+    yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
     lastX = xpos;
     lastY = ypos;
 
+    cubeRotation.x += yoffset * sensitivity;
+    cubeRotation.y += xoffset * sensitivity;
+
     camera.ProcessMouseMovement(xoffset, yoffset);    
 }
+
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
