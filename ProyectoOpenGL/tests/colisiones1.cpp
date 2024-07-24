@@ -57,11 +57,17 @@ public:
 // El jugador principal
 GameObject jugador = GameObject(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f)); // El valor de 0.0 debe ser cambiado a -0.5f ya que se toma la esquina inferior izquierda 
 
-// bloqueo de movimiento
-bool block_fordward = false;
-bool block_backward = false;
-bool block_right = false;
-bool block_left = false;
+// bloqueo de movimiento GENERAL
+bool blockNZ = false;
+bool blockX = false;
+bool blockZ = false;
+bool blockNX = false;
+
+// bloqueo de movimiento player
+bool blockFordward = false;
+bool blockRight = false;
+bool blockBackward = false;
+bool blockLeft = false;
 
 bool CheckCollision(GameObject& one, GameObject& two); // AABB - AABB
 void BlockMovement(GameObject& player, GameObject& obstacle);
@@ -247,9 +253,8 @@ int main()
         lastFrame = timeValue;
 
         // input
-        processInput(window);
         jugador.Position = camera.Position;
-        DoCollisions();
+        processInput(window);
 
         // render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -348,21 +353,72 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !block_fordward)
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !blockFordward)
         camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !block_backward)
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !blockBackward)
         camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !block_left)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !blockLeft)
         camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !block_right)
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !blockRight)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
     // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || 
+    // Se verifica si existe una colision
+    // Se permite o deniega el bloqueo de movimiento
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
         direction = -camera.Yaw + 90.0f;
+
+        DoCollisions();
+
+        // Actualiza la perspectiva del personaje para el bloqueo de movimiento
+        int anguloVista = (int)camera.Yaw % 360;
+        //std::cout << anguloVista << std::endl;
+
+        if (anguloVista < 0)
+        {
+            anguloVista = 360 + anguloVista;
+        }
+
+        if (anguloVista < 45)
+        {
+            blockFordward = blockX;
+            blockRight = blockZ;
+            blockBackward = blockNX;
+            blockLeft = blockNZ;
+        }
+        else if (anguloVista < 135)
+        {
+            blockFordward = blockZ;
+            blockRight = blockNX;
+            blockBackward = blockNZ;
+            blockLeft = blockX;
+        }
+        else if (anguloVista < 225)
+        {
+            blockFordward = blockNX;
+            blockRight = blockNZ;
+            blockBackward = blockX;
+            blockLeft = blockZ;
+        }
+        else if (anguloVista < 315)
+        {
+            blockFordward = blockNZ;
+            blockRight = blockX;
+            blockBackward = blockZ;
+            blockLeft = blockNX;
+        }
+        else if (anguloVista < 360)
+        {
+            blockFordward = blockX;
+            blockRight = blockZ;
+            blockBackward = blockNX;
+            blockLeft = blockNZ;
+        }
+    }
 
     //If I want to stay in ground level (xz plane)
     camera.Position.y = 0.0f;
@@ -473,14 +529,14 @@ void BlockMovement(GameObject& player, GameObject& obstacle)
     std::cout << cornerObstacle.x << " " << cornerObstacle.y << " " << cornerObstacle.z << std::endl;*/
 
     if (cornerPlayer.x >= cornerObstacle.x)
-        block_left = true;
+        blockNX = true;
     else if (cornerPlayer.x < cornerObstacle.x)
-        block_right = true;
+        blockX = true;
 
     if (cornerPlayer.z >= cornerObstacle.z)
-        block_fordward = true;
+        blockNZ = true;
     else if (cornerPlayer.z < cornerObstacle.z)
-        block_backward = true;
+        blockZ = true;
 }
 
 void DoCollisions()
@@ -490,10 +546,10 @@ void DoCollisions()
         // Si detecta que ya no esta en colision con algun objeto, entonces lo permite el movimiento
         if (!CheckCollision(jugador, *obj))
         {
-            block_fordward = false;
-            block_backward = false;
-            block_left = false;
-            block_right = false;
+            blockZ = false;
+            blockNZ = false;
+            blockX = false;
+            blockNX = false;
 
             objetosEnColision.empty();
             break;
