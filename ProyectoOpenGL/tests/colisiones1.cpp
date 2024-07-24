@@ -12,27 +12,74 @@
 #include <learnopengl/stb_image.h>
 
 #include <iostream>
+#include <vector>
 
+void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
+unsigned int loadTexture(char const* path, bool vertically = false);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-//Exercise 12 Task 4
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 5.0f));
-glm::vec3 cubePosition(0.0f, 0.0f, 0.0f);
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
+glm::vec3 cameraPosition(0.0f, 0.0f, 5.0f);
+Camera camera(cameraPosition);
+
+// personaje
+float direction = -camera.Yaw + 90.0f;
+
+float lastX = 0.0f;
+float lastY = 0.0f;
 bool firstMouse = true;
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+float xoffset = 0.0f;
+float yoffset = 0.0f;
+
+float sensitivity = 0.01;
+
+
+// Clase del objeto de un juego
+class GameObject {
+public:
+    glm::vec3 Position; // Posicion superior izquierda del objeto
+    glm::vec3 SizeObstacle;
+
+    GameObject(glm::vec3 position, glm::vec3 sizeObstacle) : Position(position), SizeObstacle(sizeObstacle) {}
+};
+
+// El jugador principal
+GameObject jugador = GameObject(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f)); // El valor de 0.0 debe ser cambiado a -0.5f ya que se toma la esquina inferior izquierda 
+
+// bloqueo de movimiento
+bool block_fordward = false;
+bool block_backward = false;
+bool block_right = false;
+bool block_left = false;
+
+bool CheckCollision(GameObject& one, GameObject& two); // AABB - AABB
+void BlockMovement(GameObject& player, GameObject& obstacle);
+void DoCollisions();
+
+GameObject cubes[] = {
+    GameObject(glm::vec3(-3.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(-2.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(0.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(2.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(3.0f,  0.0f,  0.0f), glm::vec3(1.0f)),
+    GameObject(glm::vec3(4.0f,  0.0f,  0.0f), glm::vec3(1.0f)) 
+};
+
+// Variable que almacena dinamicamente los objetos en colision
+std::vector<GameObject*> objetosEnColision;
 
 int main()
 {
@@ -87,158 +134,57 @@ int main()
     // ------------------------------------------------------------------
     float verticesTextura1[] = {
         //atras
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
-     0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-    -0.5f,  0.5f, -0.5f,        0.1427f, 0.66f,
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
+         -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
+          0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
+          0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
+          0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
+         -0.5f,  0.5f, -0.5f,        0.1427f, 0.66f,
+         -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
 
-        //adelante
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-
-        //izquierda
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,      
-    -0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,      
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,    
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,     
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,      
-
-        //derecha
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,      
-     0.5f,  0.5f, -0.5f,        0.925f, 0.67f,       
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,      
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,      
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,      
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,  
-
-        //abajo
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26f,
-     0.5f, -0.5f, -0.5f,        0.73f, 0.26,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26,
-
-        //arriba
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f,
-     0.5f,  0.5f, -0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
-    };
-
-    float verticesTextura2[] = {
-        //atras
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
-     0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-    -0.5f,  0.5f, -0.5f,        0.1427f, 0.66f,
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
-
-        //adelante
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+         //adelante
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+         0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
 
         //izquierda
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,    
-    -0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,      
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,   
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,    
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,     
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,      
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
+        -0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
+        -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
+        -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
 
         //derecha
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,       
-     0.5f,  0.5f, -0.5f,        0.925f, 0.67f,       
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,      
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,     
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,       
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,        
+        0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
+        0.5f,  0.5f, -0.5f,        0.925f, 0.67f,
+        0.5f, -0.5f, -0.5f,        0.925f, 0.5f,
+        0.5f, -0.5f, -0.5f,        0.925f, 0.5f,
+        0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+        0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
 
         //abajo
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26f,
-     0.5f, -0.5f, -0.5f,        0.73f, 0.26,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26,
+        -0.5f, -0.5f, -0.5f,        0.5333f, 0.26f,
+         0.5f, -0.5f, -0.5f,        0.73f, 0.26,
+         0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+         0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+        -0.5f, -0.5f, -0.5f,        0.5333f, 0.26,
 
         //arriba
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f,
-     0.5f,  0.5f, -0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
-    };
-
-    float verticesTextura3[] = {
-           //atras
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
-     0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-    -0.5f,  0.5f, -0.5f,        0.1427f, 0.66f,
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
-
-        //adelante
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-
-        //izquierda
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,     
-    -0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,      
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,  
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,    
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,     
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,      
-
-        //derecha
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,      
-     0.5f,  0.5f, -0.5f,        0.925f, 0.67f,       
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,     
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,      
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,       
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,        
-
-        //abajo
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26f,
-     0.5f, -0.5f, -0.5f,        0.73f, 0.26,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26,
-
-        //arriba
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f,
-     0.5f,  0.5f, -0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
-    };
+        -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f,
+         0.5f,  0.5f, -0.5f,        0.73f, 0.67f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
+        -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
+            };
 
     // world space positions of our cubes
-    glm::vec3 cubePositions[] = {
+    /*glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
-        
         glm::vec3(2.0f,  5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f, -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -247,10 +193,21 @@ int main()
         glm::vec3(1.3f, -2.0f, -2.5f),
         glm::vec3(1.5f,  2.0f, -2.5f),
         glm::vec3(1.5f,  0.2f, -1.5f)
-        
+    };*/
+
+    glm::vec3 cubePositions[] = {
+        glm::vec3(-4.0f,  1.0f,  0.0f), // Estos datos son cambiados
+        glm::vec3(-3.0f,  0.0f,  0.0f),
+        glm::vec3(-2.0f,  0.0f,  0.0f),
+        glm::vec3(-1.0f,  0.0f,  0.0f),
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(1.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  0.0f,  0.0f),
+        glm::vec3(3.0f,  0.0f,  0.0f),
+        glm::vec3(4.0f,  0.0f,  0.0f)
     };
 
-    unsigned int VAO, VBO1, VBO2, VBO3;
+    unsigned int VAO, VBO1;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -264,113 +221,22 @@ int main()
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Desenlazar VBO
 
-    /*  Segundo VBO  */
-    glGenBuffers(1, &VBO2);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTextura2), verticesTextura2, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Desenlazar VBO
-
-    /*  Tercer VBO  */
-    glGenBuffers(1, &VBO3);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO3);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTextura3), verticesTextura3, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Desenlazar VBO
-
     // Desenlazar VAO
     glBindVertexArray(0);
 
     // Desenlazar los VBO y el VAO
 
-    // load and create a texture 
+    // load and create textures 
     // -------------------------
-    unsigned int texture1, texture2, texture3;
-    // texture 1
-    // ---------
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true); 
-    unsigned char* data = stbi_load("textures/tests/Texture1.png", &width, &height, &nrChannels, 0);    if (data)
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // texture 2
-    // ---------
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    data = stbi_load("textures/tests/YuiTexture.png", &width, &height, &nrChannels, 0);    if (data)
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture 2" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // texture 3
-    // ---------
-    glGenTextures(1, &texture3);
-    glBindTexture(GL_TEXTURE_2D, texture3);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    data = stbi_load("textures/tests/AsuzaTexture.png", &width, &height, &nrChannels, 0);    if (data)
-        if (data)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
-        }
-        else
-        {
-            std::cout << "Failed to load texture 3" << std::endl;
-        }
-    stbi_image_free(data);
+    unsigned int texture1 = loadTexture("textures/tests/Texture1.png", true);
+    unsigned int texture2 = loadTexture("textures/tests/YuiTexture.png", true);
+    unsigned int texture3 = loadTexture("textures/tests/AsuzaTexture.png", true);
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
-    
-    ourShader.use(); 
+    ourShader.use();
     ourShader.setInt("texture1", 0);
-    ourShader.setInt("texture2", 1);
-    ourShader.setInt("texture3", 2);
-    
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -382,6 +248,8 @@ int main()
 
         // input
         processInput(window);
+        jugador.Position = camera.Position;
+        DoCollisions();
 
         // render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -395,8 +263,11 @@ int main()
         ourShader.setMat4("projection", projection);
 
         // set view matrix
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
         ourShader.setMat4("view", view);
+
+        // set model matrix
+        glm::mat4 model = glm::mat4(1.0f);
 
         // bind vertex array
         glBindVertexArray(VAO);
@@ -404,29 +275,28 @@ int main()
         // render cubes
         for (unsigned int i = 0; i < 9; i++)
         {
-            glm::mat4 model = glm::mat4(1.0f);
-
-            // Base position
+            model = glm::mat4(1.0f);
             glm::vec3 newPos = cubePositions[i];
 
             if (i == 0)
             {
+                // La textura se carga por defecto en el sampler 0
                 glBindTexture(GL_TEXTURE_2D, texture2);
-                glBindBuffer(GL_ARRAY_BUFFER, VBO1);
 
-                // Move the cube with the camera position but with an offset
-                glm::vec3 offset = glm::vec3(0.0f, 0.0f, -5.0f); // Adjust this offset as needed
-                newPos = camera.Position + offset;
+                model = glm::translate(model, camera.Position);
+                ourShader.setMat4("model", model);
 
-                // Rotate the cube over time
-                model = glm::translate(model, newPos);
-                float angle = 180.0f * (i + 1);
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+                model = glm::rotate(model, glm::radians(direction), glm::vec3(0.0f, 1.0f, 0.0f));
+
             }
-            else if (i >= 1 && i < 5)
+            else if (i < 5)
             {
+                // La textura se carga por defecto en el sampler 0
                 glBindTexture(GL_TEXTURE_2D, texture1);
-                glBindBuffer(GL_ARRAY_BUFFER, VBO2);
                 /*
                 // Move the cube over time
                 newPos.x += sin(timeValue + i) * 2.0f;
@@ -434,22 +304,24 @@ int main()
                 newPos.z += sin(timeValue + i) * 2.0f;*/
                 model = glm::translate(model, newPos);
             }
-            else if (i >= 5 && i < 8)
+            else if (i < 9)
             {
+                // La textura se carga por defecto en el sampler 0
                 glBindTexture(GL_TEXTURE_2D, texture3);
-                glBindBuffer(GL_ARRAY_BUFFER, VBO3);
 
                 // Scale the cube over time
                 model = glm::translate(model, newPos);
                 /*float scale = sin(timeValue) * 0.5f + 1.0f;
                 model = glm::scale(model, glm::vec3(scale, scale, scale));*/
             }
-
             ourShader.setMat4("model", model);
 
             // Render the cube
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+        xoffset = 0.0f;
+        yoffset = 0.0f;
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -462,9 +334,6 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO1);
-    glDeleteBuffers(1, &VBO2);
-    glDeleteBuffers(1, &VBO3);
-    
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -474,23 +343,29 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-	
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !block_fordward)
         camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !block_backward)
         camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !block_left)
         camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !block_right)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
+    // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || 
+        glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        direction = -camera.Yaw + 90.0f;
+
     //If I want to stay in ground level (xz plane)
-    //camera.Position.y = 0.0f;
-	
+    camera.Position.y = 0.0f;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -513,17 +388,125 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    xoffset = xpos - lastX;
+    yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);    
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
+
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+    camera.ProcessMouseScroll(yoffset);
+}
+
+// utility function for loading a 2D texture from file
+// ---------------------------------------------------
+unsigned int loadTexture(char const* path, bool vertically)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    stbi_set_flip_vertically_on_load(vertically);
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
+}
+
+bool CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
+{
+    // Se calcula la esquina inferior izquierda trasera de la caja de colision
+    glm::vec3 cornerOne = one.Position - (one.SizeObstacle/2.0f); 
+    glm::vec3 cornerTwo = two.Position - (two.SizeObstacle / 2.0f);
+
+    // collision x-axis?
+    bool collisionX = cornerOne.x + one.SizeObstacle.x >= cornerTwo.x &&
+        cornerTwo.x + two.SizeObstacle.x >= cornerOne.x;
+    // collision y-axis?
+    bool collisionY = cornerOne.y + one.SizeObstacle.y >= cornerTwo.y &&
+        cornerTwo.y + two.SizeObstacle.y >= cornerOne.y;
+    // collision z-axis?
+    bool collisionZ = cornerOne.z + one.SizeObstacle.z >= cornerTwo.z &&
+        cornerTwo.z + two.SizeObstacle.z >= cornerOne.z;
+    // collision only if on three axes
+    return collisionX && collisionY && collisionZ;
+}
+
+void BlockMovement(GameObject& player, GameObject& obstacle)
+{
+    // Se calcula la esquina inferior izquierda trasera de la caja de colision
+    glm::vec3 cornerPlayer = player.Position - player.SizeObstacle / 2.0f;
+    glm::vec3 cornerObstacle = obstacle.Position - obstacle.SizeObstacle / 2.0f;
+
+    /*std::cout << cornerPlayer.x << " " << cornerPlayer.y << " " << cornerPlayer.z << std::endl;
+    std::cout << cornerObstacle.x << " " << cornerObstacle.y << " " << cornerObstacle.z << std::endl;*/
+
+    if (cornerPlayer.x >= cornerObstacle.x)
+        block_left = true;
+    else if (cornerPlayer.x < cornerObstacle.x)
+        block_right = true;
+
+    if (cornerPlayer.z >= cornerObstacle.z)
+        block_fordward = true;
+    else if (cornerPlayer.z < cornerObstacle.z)
+        block_backward = true;
+}
+
+void DoCollisions()
+{
+    for (GameObject* obj : objetosEnColision)
+    {
+        // Si detecta que ya no esta en colision con algun objeto, entonces lo permite el movimiento
+        if (!CheckCollision(jugador, *obj))
+        {
+            block_fordward = false;
+            block_backward = false;
+            block_left = false;
+            block_right = false;
+
+            objetosEnColision.empty();
+            break;
+        }
+    }
+
+    for (GameObject& op : cubes)
+    {
+        // std::cout << jugador.Position.x << " " << jugador.Position.y << " " << jugador.Position.z << std::endl;
+        if (CheckCollision(jugador, op))
+        {
+            objetosEnColision.push_back(&op);
+            BlockMovement(jugador, op);
+        }
+    }
 }
