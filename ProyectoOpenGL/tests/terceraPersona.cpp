@@ -27,6 +27,9 @@ const unsigned int SCR_HEIGHT = 600;
 glm::vec3 cameraPosition(0.0f, 0.0f, 5.0f);
 Camera camera(cameraPosition);
 
+// personaje
+float direction = -camera.Yaw + 90.0f;
+
 float lastX = 0.0f;
 float lastY = 0.0f;
 bool firstMouse = true;
@@ -93,54 +96,54 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float verticesTextura1[] = {
-           //atras
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
-     0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-     0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
-    -0.5f,  0.5f, -0.5f,        0.1427f, 0.66f,
-    -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
+        //atras
+         -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
+          0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
+          0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
+          0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
+         -0.5f,  0.5f, -0.5f,        0.1427f, 0.66f,
+         -0.5f, -0.5f, -0.5f,        0.1427f, 0.5f,
 
-        //adelante
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+         //adelante
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+         0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
 
         //izquierda
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,     
-    -0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,      
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,  
-    -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,    
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,     
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,      
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
+        -0.5f,  0.5f, -0.5f,        0.3385f, 0.66f,
+        -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
+        -0.5f, -0.5f, -0.5f,        0.3385f, 0.5f,
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.67f,
 
         //derecha
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,      
-     0.5f,  0.5f, -0.5f,        0.925f, 0.67f,       
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,     
-     0.5f, -0.5f, -0.5f,        0.925f, 0.5f,      
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,       
-     0.5f,  0.5f,  0.5f,        0.73f, 0.67f,        
+        0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
+        0.5f,  0.5f, -0.5f,        0.925f, 0.67f,
+        0.5f, -0.5f, -0.5f,        0.925f, 0.5f,
+        0.5f, -0.5f, -0.5f,        0.925f, 0.5f,
+        0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+        0.5f,  0.5f,  0.5f,        0.73f, 0.67f,
 
         //abajo
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26f,
-     0.5f, -0.5f, -0.5f,        0.73f, 0.26,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-     0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
-    -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
-    -0.5f, -0.5f, -0.5f,        0.5333f, 0.26,
+        -0.5f, -0.5f, -0.5f,        0.5333f, 0.26f,
+         0.5f, -0.5f, -0.5f,        0.73f, 0.26,
+         0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+         0.5f, -0.5f,  0.5f,        0.73f, 0.5f,
+        -0.5f, -0.5f,  0.5f,        0.5333f, 0.5f,
+        -0.5f, -0.5f, -0.5f,        0.5333f, 0.26,
 
         //arriba
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f,
-     0.5f,  0.5f, -0.5f,        0.73f, 0.67f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-     0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
-    -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
-    -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
-    };
+        -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f,
+         0.5f,  0.5f, -0.5f,        0.73f, 0.67f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
+         0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
+        -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
+        -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
+            };
 
     // world space positions of our cubes
     /*glm::vec3 cubePositions[] = {
@@ -160,11 +163,11 @@ int main()
         glm::vec3(-3.0f,  0.0f,  0.0f),
         glm::vec3(-2.0f,  0.0f,  0.0f),
         glm::vec3(-1.0f,  0.0f,  0.0f),
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 1.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  0.0f,  0.0f),
-        glm::vec3( 3.0f,  0.0f,  0.0f),
-        glm::vec3( 4.0f,  0.0f,  0.0f)
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(1.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  0.0f,  0.0f),
+        glm::vec3(3.0f,  0.0f,  0.0f),
+        glm::vec3(4.0f,  0.0f,  0.0f)
     };
 
     unsigned int VAO, VBO1;
@@ -194,9 +197,9 @@ int main()
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
-    ourShader.use(); 
+    ourShader.use();
     ourShader.setInt("texture1", 0);
-    
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -240,10 +243,10 @@ int main()
             {
                 // La textura se carga por defecto en el sampler 0
                 glBindTexture(GL_TEXTURE_2D, texture2);
-                
+
                 model = glm::translate(model, camera.Position);
-                model = glm::rotate(model, glm::radians(camera.Yaw + 270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                
+                model = glm::rotate(model, glm::radians(direction), glm::vec3(0.0f, 1.0f, 0.0f));
+
             }
             else if (i < 5)
             {
@@ -295,11 +298,11 @@ int main()
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-	
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -309,9 +312,15 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
+    // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || 
+        glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        direction = -camera.Yaw + 90.0f;
+
     //If I want to stay in ground level (xz plane)
     camera.Position.y = 0.0f;
-	
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -339,7 +348,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);    
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 
@@ -347,7 +356,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.ProcessMouseScroll(yoffset);
+    camera.ProcessMouseScroll(yoffset);
 }
 
 // utility function for loading a 2D texture from file
