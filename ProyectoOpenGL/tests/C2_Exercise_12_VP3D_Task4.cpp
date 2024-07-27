@@ -7,11 +7,16 @@
 
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
+#include <learnopengl/miniaudio.h>
 
 #define STB_IMAGE_IMPLEMENTATION 
 #include <learnopengl/stb_image.h>
 
 #include <iostream>
+
+#include <thread>
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -32,6 +37,8 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+
 
 int main()
 {
@@ -76,6 +83,7 @@ int main()
     //Exercise 11 Task 3
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+    
 
 
     // build and compile our shader zprogram
@@ -296,13 +304,12 @@ int main()
         }*/
 
 
-
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+ 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
