@@ -12,6 +12,9 @@
 #include <learnopengl/stb_image.h>
 
 #include <iostream>
+//librerias para la musica
+#include <SFML/Audio.hpp>
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -60,8 +63,10 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
+
+
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -219,12 +224,12 @@ int main()
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
 
-   
 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+
         // per-frame time logic
        // --------------------
         float currentFrame = glfwGetTime();

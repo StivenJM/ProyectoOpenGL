@@ -11,7 +11,16 @@
 #define STB_IMAGE_IMPLEMENTATION 
 #include <learnopengl/stb_image.h>
 
+
 #include <iostream>
+
+#include <irrklang/irrKlang.h>
+
+//declaracion de varibles gobales para el sonido
+irrklang::ISoundEngine* engine = nullptr;
+irrklang::ISoundSource* stepSound = nullptr;
+
+
 
 void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -200,6 +209,29 @@ int main()
     ourShader.use();
     ourShader.setInt("texture1", 0);
 
+    ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
+
+  // Inicializar el motor de sonido
+    engine = irrklang::createIrrKlangDevice();
+    if (!engine) {
+        std::cerr << "No se pudo inicializar el motor de sonido." << std::endl;
+        return -1;
+    }
+
+    // Reproducir música de fondo
+    engine->play2D("audio/fondo/musica_de_fondo.wav", true);
+
+
+
+    // Cargar el sonido de pasos
+    stepSound = engine->addSoundSourceFromFile("audio/efectos/pasos.wav");
+    if (!stepSound) {
+        std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
+    }
+
+    
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -318,6 +350,16 @@ void processInput(GLFWwindow* window)
         glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         direction = -camera.Yaw + 90.0f;
+
+    // Actualización de sonido según la entrada
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        if (!engine->isCurrentlyPlaying(stepSound)) {
+            engine->play2D(stepSound, false);
+        }
+    }
 
     //If I want to stay in ground level (xz plane)
     camera.Position.y = 0.0f;
