@@ -18,7 +18,7 @@
     <ClCompile Include="..\includes\glad\glad.c">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="tests\terceraPersona.cpp">
+    <ClCompile Include="tests\C3_Exercise_16_Load3DModel_Task3.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
