@@ -11,51 +11,7 @@
 #define STB_IMAGE_IMPLEMENTATION 
 #include <learnopengl/stb_image.h>
 
-
 #include <iostream>
-
-#include <irrklang/irrKlang.h>
-// Variables estáticas para mantener el estado entre llamadas
-static irrklang::ISoundEngine* motorSonido = nullptr;
-static irrklang::ISoundSource* sonidoPasos = nullptr;
-static irrklang::ISoundSource* musicaFondo = nullptr;
-
-//funcion que gestionara los sonidos del sistema
-void reproducirSonido(const std::string& nombreSonido) {
-
-    // Inicializar el motor de sonido y los sonidos si no están ya inicializados
-    if (!motorSonido) {
-        motorSonido = irrklang::createIrrKlangDevice();
-        if (!motorSonido) {
-            std::cerr << "No se pudo inicializar el motor de sonido." << std::endl;
-            return;
-        }
-
-        musicaFondo = motorSonido->addSoundSourceFromFile("audio/fondo/musica_de_fondo.wav");
-        if (!musicaFondo) {
-            std::cerr << "No se pudo cargar la música de fondo." << std::endl;
-        }
-
-        sonidoPasos = motorSonido->addSoundSourceFromFile("audio/efectos/pasos.wav");
-        if (!sonidoPasos) {
-            std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
-        }
-    }
-
-    // Reproducir el sonido solicitado
-    if (nombreSonido == "fondo") {
-        
-         motorSonido->play2D(musicaFondo, true);
-        
-    }
-
-
-}
-
-
-
-
-
 
 void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -187,7 +143,7 @@ int main()
          0.5f,  0.5f,  0.5f,        0.73f, 0.92f,
         -0.5f,  0.5f,  0.5f,        0.5333f, 0.92f,
         -0.5f,  0.5f, -0.5f,        0.5333f, 0.67f
-            };
+    };
 
     // world space positions of our cubes
     /*glm::vec3 cubePositions[] = {
@@ -244,14 +200,6 @@ int main()
     ourShader.use();
     ourShader.setInt("texture1", 0);
 
-    ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
-
-  // Inicializar el motor de sonido
-    reproducirSonido("fondo");
-
-    
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -368,11 +316,8 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         direction = -camera.Yaw + 90.0f;
-        
-    }
-
 
     //If I want to stay in ground level (xz plane)
     camera.Position.y = 0.0f;
