@@ -149,6 +149,9 @@ private:
     }
 };
 
+// GAME OBJECT CLASS
+// --------------------------------------
+
 // Default GameObject values
 const float ANGLE_ROTATION = 0.0f;
 
@@ -236,4 +239,114 @@ public:
         ModelComplete.Draw(shader);
     }
 };
+
+glm::vec3 CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
+{
+    // La funcion retorna un vector 3d que indica cuanto debe moverse el objeto one para no transpasar el objeto two
+    std::vector<BoundingBox> boundingBoxesOne = one.GetBoundingBoxes();
+    std::vector<BoundingBox> boundingBoxesTwo = two.GetBoundingBoxes();
+
+    for (auto& b1 : boundingBoxesOne)
+    {
+        for (auto& b2 : boundingBoxesTwo)
+        {
+            // Get separating axis
+            std::vector<glm::vec2> sa;
+            sa.push_back(glm::vec2(b1.front.x, b1.front.z));
+            sa.push_back(glm::vec2(-b1.front.z, b1.front.x));
+            sa.push_back(glm::vec2(b2.front.x, b2.front.z));
+            sa.push_back(glm::vec2(-b2.front.z, b2.front.x));
+
+            // Get plane XZ of bounding boxes
+            std::vector<glm::vec2> verticesB1;
+            verticesB1.push_back(glm::vec2(b1.vertices[3].x, b1.vertices[3].z));
+            verticesB1.push_back(glm::vec2(b1.vertices[2].x, b1.vertices[2].z));
+            verticesB1.push_back(glm::vec2(b1.vertices[6].x, b1.vertices[6].z));
+            verticesB1.push_back(glm::vec2(b1.vertices[7].x, b1.vertices[7].z));
+
+            std::vector<glm::vec2> verticesB2;
+            verticesB2.push_back(glm::vec2(b2.vertices[3].x, b2.vertices[3].z));
+            verticesB2.push_back(glm::vec2(b2.vertices[2].x, b2.vertices[2].z));
+            verticesB2.push_back(glm::vec2(b2.vertices[6].x, b2.vertices[6].z));
+            verticesB2.push_back(glm::vec2(b2.vertices[7].x, b2.vertices[7].z));
+
+            bool allTrue = true;
+
+            // Check collisions in each axis
+            for (glm::vec2 a : sa)
+            {
+                // Get limits in boxes
+                float intervalAStart = std::numeric_limits<float>::max();
+                float intervalAEnd = -std::numeric_limits<float>::max();
+                float intervalBStart = std::numeric_limits<float>::max();
+                float intervalBEnd = -std::numeric_limits<float>::max();
+
+                for (glm::vec2 v : verticesB1)
+                {
+                    float projection = glm::dot(v, a);
+                    intervalAStart = std::min(intervalAStart, projection);
+                    intervalAEnd = std::max(intervalAEnd, projection);
+                }
+
+                for (glm::vec2 v : verticesB2)
+                {
+                    float projection = glm::dot(v, a);
+                    intervalBStart = std::min(intervalBStart, projection);
+                    intervalBEnd = std::max(intervalBEnd, projection);
+                }
+
+                // collision a-axis?
+                allTrue &= intervalAEnd >= intervalBStart &&
+                    intervalBEnd >= intervalAStart;
+            }
+
+            // Return if there's a collision
+            if (allTrue)
+            {
+                // Reaccionar a las colisiones
+                glm::vec3 penetration = glm::vec3(0.0f);
+                glm::vec3 direction = one.Position - two.Position;
+                glm::vec2 a = glm::vec2(direction.x, direction.z);
+
+                float intervalAStart = std::numeric_limits<float>::max();
+                float intervalAEnd = -std::numeric_limits<float>::max();
+                float intervalBStart = std::numeric_limits<float>::max();
+                float intervalBEnd = -std::numeric_limits<float>::max();
+
+                for (glm::vec2 v : verticesB1)
+                {
+                    float projection = glm::dot(v, a);
+                    intervalAStart = std::min(intervalAStart, projection);
+                    intervalAEnd = std::max(intervalAEnd, projection);
+                }
+
+                for (glm::vec2 v : verticesB2)
+                {
+                    float projection = glm::dot(v, a);
+                    intervalBStart = std::min(intervalBStart, projection);
+                    intervalBEnd = std::max(intervalBEnd, projection);
+                }
+
+                float magnitudePenetration = std::min(abs(intervalAEnd - intervalBStart), abs(intervalBEnd - intervalAStart));
+                penetration = magnitudePenetration * glm::normalize(direction);
+
+                // La sensitividad debe ir disminuyendo a medida que los objetos con los que se colisiona crecen
+                return 0.05f * penetration;
+            }
+        }
+    }
+    return glm::vec3(0.0f);
+}
+
+void DoCollisions(std::vector<GameObject>& objects, GameObject* jugador, Camera* camera = NULL)
+{
+    for (auto& obj : objects)
+    {
+        glm::vec3 move = CheckCollision(*jugador, obj);
+        if (camera != NULL)
+            camera->Position += move;
+        else 
+            jugador->Position += move;
+    }
+}
 #endif

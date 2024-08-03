@@ -15,19 +15,10 @@
 #define STB_IMAGE_IMPLEMENTATION 
 #include <learnopengl/stb_image.h>
 
-struct CollisionPair {
-    BoundingBox* B1;
-    BoundingBox* B2;
-
-    CollisionPair(BoundingBox& b1, BoundingBox& b2) : B1(&b1), B2(&b2) {}
-};
-
 void processInput(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-CollisionPair* CheckCollision(GameObject& one, GameObject& two); // AABB - AABB
-void DoCollisions();
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -50,20 +41,6 @@ float direction = -camera.Yaw + 90.0f;
 
 GameObject* jugador = nullptr;
 std::vector<GameObject> objects;
-
-// bloqueo de movimiento GENERAL
-bool blockNZ = false;
-bool blockX = false;
-bool blockZ = false;
-bool blockNX = false;
-
-// bloqueo de movimiento player
-bool blockFordward = false;
-bool blockRight = false;
-bool blockBackward = false;
-bool blockLeft = false;
-
-std::vector<GameObject> objetosEnColision;
 
 int main()
 {
@@ -122,15 +99,15 @@ int main()
     Shader bbShader("shaders/tests/shaderCollision.vs", "shaders/tests/shaderCollision.fs");
 
     glm::vec3 cubePositions[] = {
-        glm::vec3(-8.0f,  0.0f,  0.0f),
-        glm::vec3(-6.0f,  0.0f,  0.0f),
         glm::vec3(-4.0f,  0.0f,  0.0f),
+        glm::vec3(-3.0f,  0.0f,  0.0f),
         glm::vec3(-2.0f,  0.0f,  0.0f),
+        glm::vec3(-1.0f,  0.0f,  0.0f),
         glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 1.0f,  0.0f,  0.0f),
         glm::vec3( 2.0f,  0.0f,  0.0f),
-        glm::vec3( 4.0f,  0.0f,  0.0f),
-        glm::vec3( 6.0f,  0.0f,  0.0f),
-        glm::vec3( 8.0f,  0.0f,  0.0f)
+        glm::vec3( 3.0f,  0.0f,  0.0f),
+        glm::vec3( 4.0f,  0.0f,  0.0f)
     };
 
     for (const auto& pos : cubePositions)
@@ -139,7 +116,7 @@ int main()
             pos,
             0.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(1.0f, 1.0f, 1.0f));
+            glm::vec3(0.5f, 0.5f, 0.5f));
         aux.AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
         objects.push_back(aux);
     }
@@ -227,15 +204,6 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
-    /*if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && !blockFordward)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && !blockBackward)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && !blockLeft)
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && !blockRight)
-        camera.ProcessKeyboard(RIGHT, deltaTime);*/
-
     // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
     // Se verifica si existe una colision
     // Se permite o deniega el bloqueo de movimiento
@@ -246,52 +214,7 @@ void processInput(GLFWwindow* window)
     {
         direction = -camera.Yaw + 90.0f;
 
-        DoCollisions();
-
-        // Actualiza la perspectiva del personaje para el bloqueo de movimiento
-        int anguloVista = (int)camera.Yaw % 360;
-        //std::cout << anguloVista << std::endl;
-
-        if (anguloVista < 0)
-        {
-            anguloVista = 360 + anguloVista;
-        }
-
-        if (anguloVista < 45)
-        {
-            blockFordward = blockX;
-            blockRight = blockZ;
-            blockBackward = blockNX;
-            blockLeft = blockNZ;
-        }
-        else if (anguloVista < 135)
-        {
-            blockFordward = blockZ;
-            blockRight = blockNX;
-            blockBackward = blockNZ;
-            blockLeft = blockX;
-        }
-        else if (anguloVista < 225)
-        {
-            blockFordward = blockNX;
-            blockRight = blockNZ;
-            blockBackward = blockX;
-            blockLeft = blockZ;
-        }
-        else if (anguloVista < 315)
-        {
-            blockFordward = blockNZ;
-            blockRight = blockX;
-            blockBackward = blockZ;
-            blockLeft = blockNX;
-        }
-        else if (anguloVista < 360)
-        {
-            blockFordward = blockX;
-            blockRight = blockZ;
-            blockBackward = blockNX;
-            blockLeft = blockNZ;
-        }
+        DoCollisions(objects, jugador, &camera);
     }
 
     //If I want to stay in ground level (xz plane)
@@ -330,119 +253,4 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);
-}
-
-CollisionPair* CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
-{
-    std::vector<BoundingBox> boundingBoxesOne = one.GetBoundingBoxes();
-    std::vector<BoundingBox> boundingBoxesTwo = two.GetBoundingBoxes();
-
-    for (auto& b1 : boundingBoxesOne)
-    {
-        for (auto& b2 : boundingBoxesTwo)
-        {
-            // Get separating axis
-            std::vector<glm::vec2> sa;
-            sa.push_back(glm::vec2(b1.front.x, b1.front.z));
-            sa.push_back(glm::vec2(-b1.front.z, b1.front.x));
-            sa.push_back(glm::vec2(b2.front.x, b2.front.z));
-            sa.push_back(glm::vec2(-b2.front.z, b2.front.x));
-
-            // Get plane XZ of bounding boxes
-            std::vector<glm::vec2> verticesB1;
-            verticesB1.push_back(glm::vec2(b1.vertices[3].x, b1.vertices[3].z));
-            verticesB1.push_back(glm::vec2(b1.vertices[2].x, b1.vertices[2].z));
-            verticesB1.push_back(glm::vec2(b1.vertices[6].x, b1.vertices[6].z));
-            verticesB1.push_back(glm::vec2(b1.vertices[7].x, b1.vertices[7].z));
-
-            std::vector<glm::vec2> verticesB2;
-            verticesB2.push_back(glm::vec2(b2.vertices[3].x, b2.vertices[3].z));
-            verticesB2.push_back(glm::vec2(b2.vertices[2].x, b2.vertices[2].z));
-            verticesB2.push_back(glm::vec2(b2.vertices[6].x, b2.vertices[6].z));
-            verticesB2.push_back(glm::vec2(b2.vertices[7].x, b2.vertices[7].z));
-
-            bool allTrue = true;
-
-            // Check collisions in each axis
-            for (glm::vec2 a : sa)
-            {
-                // Get limits in boxes
-                float intervalAStart = std::numeric_limits<float>::max();
-                float intervalAEnd = -std::numeric_limits<float>::max();
-                float intervalBStart = std::numeric_limits<float>::max();
-                float intervalBEnd = -std::numeric_limits<float>::max();
-
-                for (glm::vec2 v : verticesB1)
-                {
-                    float projection = glm::dot(v, a);
-                    intervalAStart = std::min(intervalAStart, projection);
-                    intervalAEnd = std::max(intervalAEnd, projection);
-                }
-
-                for (glm::vec2 v : verticesB2)
-                {
-                    float projection = glm::dot(v, a);
-                    intervalBStart = std::min(intervalBStart, projection);
-                    intervalBEnd = std::max(intervalBEnd, projection);
-                }
-
-                // collision a-axis?
-                allTrue &= intervalAEnd >= intervalBStart && 
-                    intervalBEnd >= intervalAStart;
-            }
-
-            // Return if there's a collision
-            if (allTrue)
-            {
-                // Reaccionar a las colisiones
-                glm::vec3 penetration = glm::vec3(0.0f);
-                glm::vec3 direction = one.Position - two.Position;
-                glm::vec2 a = glm::vec2(direction.x, direction.z);
-
-                float intervalAStart = std::numeric_limits<float>::max();
-                float intervalAEnd = -std::numeric_limits<float>::max();
-                float intervalBStart = std::numeric_limits<float>::max();
-                float intervalBEnd = -std::numeric_limits<float>::max();
-
-                for (glm::vec2 v : verticesB1)
-                {
-                    float projection = glm::dot(v, a);
-                    intervalAStart = std::min(intervalAStart, projection);
-                    intervalAEnd = std::max(intervalAEnd, projection);
-                }
-
-                for (glm::vec2 v : verticesB2)
-                {
-                    float projection = glm::dot(v, a);
-                    intervalBStart = std::min(intervalBStart, projection);
-                    intervalBEnd = std::max(intervalBEnd, projection);
-                }
-
-                float magnitudePenetration = std::min(abs(intervalAEnd - intervalBStart), abs(intervalBEnd - intervalAStart));
-                penetration = magnitudePenetration * glm::normalize(direction);
-
-                camera.Position += 0.01f * penetration;
-
-                CollisionPair* aux = new CollisionPair(b1, b2);
-                return aux;
-            }
-        }
-    }
-    return nullptr;
-}
-
-void DoCollisions()
-{
-    for (auto& obj : objects)
-    {
-        CollisionPair* collision = CheckCollision(*jugador, obj);
-        if (collision)
-        {
-            //BlockMovement(*jugador, obj, collision);
-            std::cout << "Bloqueando Movimiento" << std::endl;
-            /*std::cout << jugador->Position.x << " " << jugador->Position.y << " " << jugador->Position.z << std::endl;
-            std::cout << obj.Position.x << " " << obj.Position.y << " " << obj.Position.z << std::endl;*/
-            delete collision;
-        }
-    }
 }
