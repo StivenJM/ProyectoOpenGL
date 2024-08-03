@@ -16,10 +16,10 @@
 #include <learnopengl/stb_image.h>
 
 struct CollisionPair {
-    BoundingBox B1;
-    BoundingBox B2;
+    BoundingBox* B1;
+    BoundingBox* B2;
 
-    CollisionPair(BoundingBox b1, BoundingBox b2) : B1(b1), B2(b2) {}
+    CollisionPair(BoundingBox& b1, BoundingBox& b2) : B1(&b1), B2(&b2) {}
 };
 
 void processInput(GLFWwindow* window);
@@ -27,7 +27,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 CollisionPair* CheckCollision(GameObject& one, GameObject& two); // AABB - AABB
-void BlockMovement(BoundingBox& player, BoundingBox& obstacle);
 void DoCollisions();
 
 // settings
@@ -123,15 +122,15 @@ int main()
     Shader bbShader("shaders/tests/shaderCollision.vs", "shaders/tests/shaderCollision.fs");
 
     glm::vec3 cubePositions[] = {
+        glm::vec3(-8.0f,  0.0f,  0.0f),
+        glm::vec3(-6.0f,  0.0f,  0.0f),
         glm::vec3(-4.0f,  0.0f,  0.0f),
-        glm::vec3(-3.0f,  0.0f,  0.0f),
         glm::vec3(-2.0f,  0.0f,  0.0f),
-        glm::vec3(-1.0f,  0.0f,  0.0f),
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(1.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  0.0f,  0.0f),
-        glm::vec3(3.0f,  0.0f,  0.0f),
-        glm::vec3(4.0f,  0.0f,  0.0f)
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  0.0f,  0.0f),
+        glm::vec3( 4.0f,  0.0f,  0.0f),
+        glm::vec3( 6.0f,  0.0f,  0.0f),
+        glm::vec3( 8.0f,  0.0f,  0.0f)
     };
 
     for (const auto& pos : cubePositions)
@@ -140,7 +139,7 @@ int main()
             pos,
             0.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.5f, 0.5f, 0.5f));
+            glm::vec3(1.0f, 1.0f, 1.0f));
         aux.AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
         objects.push_back(aux);
     }
@@ -395,73 +394,55 @@ CollisionPair* CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
             // Return if there's a collision
             if (allTrue)
             {
-                CollisionPair aux(b1, b2);
-                return &aux;
+                // Reaccionar a las colisiones
+                glm::vec3 penetration = glm::vec3(0.0f);
+                glm::vec3 direction = one.Position - two.Position;
+                glm::vec2 a = glm::vec2(direction.x, direction.z);
+
+                float intervalAStart = std::numeric_limits<float>::max();
+                float intervalAEnd = -std::numeric_limits<float>::max();
+                float intervalBStart = std::numeric_limits<float>::max();
+                float intervalBEnd = -std::numeric_limits<float>::max();
+
+                for (glm::vec2 v : verticesB1)
+                {
+                    float projection = glm::dot(v, a);
+                    intervalAStart = std::min(intervalAStart, projection);
+                    intervalAEnd = std::max(intervalAEnd, projection);
+                }
+
+                for (glm::vec2 v : verticesB2)
+                {
+                    float projection = glm::dot(v, a);
+                    intervalBStart = std::min(intervalBStart, projection);
+                    intervalBEnd = std::max(intervalBEnd, projection);
+                }
+
+                float magnitudePenetration = std::min(abs(intervalAEnd - intervalBStart), abs(intervalBEnd - intervalAStart));
+                penetration = magnitudePenetration * glm::normalize(direction);
+
+                camera.Position += 0.01f * penetration;
+
+                CollisionPair* aux = new CollisionPair(b1, b2);
+                return aux;
             }
         }
     }
     return nullptr;
 }
 
-void BlockMovement(BoundingBox& player, BoundingBox& obstacle)
-{
-    //// Se calcula la esquina inferior izquierda trasera de la caja de colision
-    //glm::vec3 cornerPlayer = player.position - player.dimensions;
-    //glm::vec3 cornerObstacle = obstacle.position - obstacle.dimensions;
-
-    ///*std::cout << cornerPlayer.x << " " << cornerPlayer.y << " " << cornerPlayer.z << std::endl;
-    //std::cout << cornerObstacle.x << " " << cornerObstacle.y << " " << cornerObstacle.z << std::endl;*/
-
-    //if (cornerPlayer.x >= cornerObstacle.x)
-    //    blockNX = true;
-    //else if (cornerPlayer.x < cornerObstacle.x)
-    //    blockX = true;
-
-    //if (cornerPlayer.z >= cornerObstacle.z)
-    //    blockNZ = true;
-    //else if (cornerPlayer.z < cornerObstacle.z)
-    //    blockZ = true;
-    std::cout << "Bloqueando Movimiento" << std::endl;
-    std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl;
-    std::cout << obstacle.position.x << " " << obstacle.position.y << " " << obstacle.position.z << std::endl;
-}
-
 void DoCollisions()
 {
-    //for (auto& obj : objetosEnColision)
-    //{
-    //    // Si detecta que ya no esta en colision con algun objeto, entonces lo permite el movimiento
-    //    if (!CheckCollision(*jugador, obj))
-    //    {
-    //        blockZ = false;
-    //        blockNZ = false;
-    //        blockX = false;
-    //        blockNX = false;
-
-    //        objetosEnColision.empty();
-    //        break;
-    //    }
-    //}
-
     for (auto& obj : objects)
     {
-        // std::cout << jugador.Position.x << " " << jugador.Position.y << " " << jugador.Position.z << std::endl;
         CollisionPair* collision = CheckCollision(*jugador, obj);
         if (collision)
         {
-            //objetosEnColision.push_back(obj);
-            //BlockMovement(collision->B1, collision->B2);
-            if (obj.Position.x == 3 && obj.Position.y == 0 && obj.Position.z == 0)
-            {
-                collision = CheckCollision(*jugador, obj);
-            }
+            //BlockMovement(*jugador, obj, collision);
             std::cout << "Bloqueando Movimiento" << std::endl;
-            std::cout << jugador->Position.x << " " << jugador->Position.y << " " << jugador->Position.z << std::endl;
-            std::cout << obj.Position.x << " " << obj.Position.y << " " << obj.Position.z << std::endl;
-        }
-        else
-        {
-            std::cout << "Movimiento libre" << std::endl;
+            /*std::cout << jugador->Position.x << " " << jugador->Position.y << " " << jugador->Position.z << std::endl;
+            std::cout << obj.Position.x << " " << obj.Position.y << " " << obj.Position.z << std::endl;*/
+            delete collision;
         }
     }
 }
