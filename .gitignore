@@ -76,6 +76,10 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
+# ignorar todo obj, pero no los que se encuentran en modelos
+!ProyectoOpenGL/models/
+!ProyectoOpenGL/models/**/*.obj
+
 *.iobj
 *.pch
 *.pdb
