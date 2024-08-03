@@ -135,6 +135,12 @@
     <ClCompile Include="..\includes\glad\glad.c" />
     <ClCompile Include="tests\terceraPersona.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\tests\shader_B2T4_lightcube.fs" />
+    <None Include="shaders\tests\shader_B2T4_lightcube.vs" />
+    <None Include="shaders\tests\shader_terceraPersona.fs" />
+    <None Include="shaders\tests\shader_terceraPersona.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

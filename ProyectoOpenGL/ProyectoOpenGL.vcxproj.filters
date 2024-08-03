@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Archivos de origen\shaders">
+      <UniqueIdentifier>{696e6fa2-d79a-4fd3-a5ff-53530a9f14fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\glad\glad.c">
@@ -21,5 +24,19 @@
     <ClCompile Include="tests\terceraPersona.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\tests\shader_B2T4_lightcube.fs">
+      <Filter>Archivos de origen\shaders</Filter>
+    </None>
+    <None Include="shaders\tests\shader_B2T4_lightcube.vs">
+      <Filter>Archivos de origen\shaders</Filter>
+    </None>
+    <None Include="shaders\tests\shader_terceraPersona.fs">
+      <Filter>Archivos de origen\shaders</Filter>
+    </None>
+    <None Include="shaders\tests\shader_terceraPersona.vs">
+      <Filter>Archivos de origen\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
