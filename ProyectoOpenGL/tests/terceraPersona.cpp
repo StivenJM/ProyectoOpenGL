@@ -16,44 +16,13 @@
 
 #include <irrklang/irrKlang.h>
 // Variables estáticas para mantener el estado entre llamadas
-static irrklang::ISoundEngine* motorSonido = nullptr;
-static irrklang::ISoundSource* sonidoPasos = nullptr;
-static irrklang::ISoundSource* musicaFondo = nullptr;
-
-//funcion que gestionara los sonidos del sistema
-void reproducirSonido(const std::string& nombreSonido) {
-
-    // Inicializar el motor de sonido y los sonidos si no están ya inicializados
-    if (!motorSonido) {
-        motorSonido = irrklang::createIrrKlangDevice();
-        if (!motorSonido) {
-            std::cerr << "No se pudo inicializar el motor de sonido." << std::endl;
-            return;
-        }
-
-        musicaFondo = motorSonido->addSoundSourceFromFile("audio/fondo/musica_de_fondo.wav");
-        if (!musicaFondo) {
-            std::cerr << "No se pudo cargar la música de fondo." << std::endl;
-        }
-
-        sonidoPasos = motorSonido->addSoundSourceFromFile("audio/efectos/pasos.wav");
-        if (!sonidoPasos) {
-            std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
-        }
-    }
-
-    // Reproducir el sonido solicitado
-    if (nombreSonido == "fondo") {
-        
-         motorSonido->play2D(musicaFondo, true);
-        
-    }
-
-
-}
-
-
-
+irrklang::ISoundEngine* engine = nullptr;
+irrklang::ISoundSource* stepSound = nullptr;
+irrklang::ISoundSource* deer = nullptr;
+//
+irrklang::ISound* fireSound = nullptr;
+//anadir la opsicion del la fogata
+glm::vec3 firePosition(2.0f, 0.0f, 0.0f);
 
 
 
@@ -247,8 +216,33 @@ int main()
     ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
 
   // Inicializar el motor de sonido
-    reproducirSonido("fondo");
+    engine = irrklang::createIrrKlangDevice();
+    if (!engine) {
+        std::cerr << "No se pudo inicializar el motor de sonido." << std::endl;
+        return -1;
+    }
 
+    // Reproducir música de fondo
+    engine->play2D("audio/fondo/musica_de_fondo.wav", true);
+   
+
+
+    // Cargar el sonido de pasos
+    stepSound = engine->addSoundSourceFromFile("audio/efectos/pasos.wav");
+
+    if (!stepSound) {
+        std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
+    }
+    deer = engine->addSoundSourceFromFile("audio/efectos/deer.wav");
+ 
+    if (!deer) {
+        std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
+    }
+
+    fireSound = engine->play3D("audio/efectos/fuego.wav", irrklang::vec3df(firePosition.x, firePosition.y, firePosition.z), true, false, true);
+    if (!fireSound) {
+        std::cerr << "No se pudo cargar el sonido de fuego." << std::endl;
+    }
     
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,6 +257,27 @@ int main()
 
         // input
         processInput(window);
+
+
+
+
+
+
+        irrklang::vec3df listenerPos(camera.Position.x, camera.Position.y, camera.Position.z);
+        irrklang::vec3df listenerLookDir(camera.Front.x, camera.Front.y, camera.Front.z);
+        irrklang::vec3df listenerUpVector(camera.Up.x, camera.Up.y, camera.Up.z);
+
+        engine->setListenerPosition(listenerPos, listenerLookDir, irrklang::vec3df(0, 0, 0), listenerUpVector);
+
+
+
+
+
+
+
+
+
+
 
         // render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -364,15 +379,18 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
-    // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        direction = -camera.Yaw + 90.0f;
+ 
         
-    }
-
+        // Actualización de sonido según la entrada
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            direction = -camera.Yaw + 90.0f;
+            if (!engine->isCurrentlyPlaying(stepSound)) {
+                engine->play2D(stepSound, false);
+            }
+        }
 
     //If I want to stay in ground level (xz plane)
     camera.Position.y = 0.0f;
