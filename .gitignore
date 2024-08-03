@@ -3,6 +3,15 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Configuraciones de vscode
+assimp/
+mesh.h 
+model.h 
+assimp-vc143-mtd.dll
+assimp-vc143-mtd.exp
+assimp-vc143-mtd.lib
+unit.exe
+
 # User-specific files
 *.rsuser
 *.suo
