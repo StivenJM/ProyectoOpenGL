@@ -14,7 +14,16 @@
 
 #define STB_IMAGE_IMPLEMENTATION 
 #include <learnopengl/stb_image.h>
+#include <irrklang/irrKlang.h>
 
+// Variables estáticas para mantener el estado entre llamadas
+irrklang::ISoundEngine* engine = nullptr;
+irrklang::ISoundSource* stepSound = nullptr;
+irrklang::ISoundSource* deer = nullptr;
+//
+irrklang::ISound* fireSound = nullptr;
+//anadir la opsicion del la fogata
+glm::vec3 firePosition(2.0f, 0.0f, 0.0f);
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -136,7 +145,40 @@ int main()
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    //camera.MovementSpeed = 15; //Optional. Modify the speed of the camera
+    camera.MovementSpeed = 15; //Optional. Modify the speed of the camera
+
+
+     ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
+
+  // Inicializar el motor de sonido
+    engine = irrklang::createIrrKlangDevice();
+    if (!engine) {
+        std::cerr << "No se pudo inicializar el motor de sonido." << std::endl;
+        return -1;
+    }
+
+    // Reproducir música de fondo
+    engine->play2D("audio/fondo/musica_de_fondo.wav", true);
+
+    // Cargar el sonido de pasos
+    stepSound = engine->addSoundSourceFromFile("audio/efectos/pasos.wav");
+
+    if (!stepSound) {
+        std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
+    }
+    deer = engine->addSoundSourceFromFile("audio/efectos/deer.wav");
+
+    if (!deer) {
+        std::cerr << "No se pudo cargar el sonido de pasos." << std::endl;
+    }
+
+    fireSound = engine->play3D("audio/efectos/fuego.wav", irrklang::vec3df(firePosition.x, firePosition.y, firePosition.z), true, false, true);
+    if (!fireSound) {
+        std::cerr << "No se pudo cargar el sonido de fuego." << std::endl;
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     // render loop
     // -----------
@@ -153,6 +195,17 @@ int main()
         jugador->AngleRotation = direction;
         //std::cout << jugador->Position.x << " " << jugador->Position.y << " " << jugador->Position.z << std::endl;
         processInput(window);
+
+        ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
+
+        irrklang::vec3df listenerPos(camera.Position.x, camera.Position.y, camera.Position.z);
+        irrklang::vec3df listenerLookDir(camera.Front.x, camera.Front.y, camera.Front.z);
+        irrklang::vec3df listenerUpVector(camera.Up.x, camera.Up.y, camera.Up.z);
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        
+        engine->setListenerPosition(listenerPos, listenerLookDir, irrklang::vec3df(0, 0, 0), listenerUpVector);
 
         // render
         // ------
@@ -174,10 +227,8 @@ int main()
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
         ourShaderScene.setMat4("model", model);
         ourModel.Draw(ourShaderScene);
-
-        //--------------------------------------------------//
-        // renderizacion de jugador y zombie
-        //--------------------------------------------------//
+  
+        /////////////////////////////////////////////////renderización de jugador y zombie////////////////////////////////////////////////////////////////
        
         // activate shader
         ourShader.use();
@@ -211,6 +262,8 @@ int main()
             object.RenderBoundingBoxes(bbShader);
         }
 
+        /////////////////////////////////////////////////fin renderización de jugador y zombie////////////////////////////////////////////////////////////////
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -218,6 +271,8 @@ int main()
     }
 
     delete jugador;
+
+  
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -251,7 +306,9 @@ void processInput(GLFWwindow *window)
         glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
         direction = -camera.Yaw + 90.0f;
-
+        if (!engine->isCurrentlyPlaying(stepSound)) {
+            engine->play2D(stepSound, false);
+        }
         DoCollisions(objects, jugador, &camera);
     }
 
