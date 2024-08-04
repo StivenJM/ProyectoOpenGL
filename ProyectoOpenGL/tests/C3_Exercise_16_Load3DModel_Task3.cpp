@@ -7,12 +7,14 @@
 
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
-#include <learnopengl/model.h>
+#include <game_object.h>
 
 #include <iostream>
+#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION 
 #include <learnopengl/stb_image.h>
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -25,7 +27,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(1.8f, 4.0f, 2.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -33,6 +35,13 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+float direction = -camera.Yaw + 90.0f;
+
+
+
+GameObject* jugador = nullptr;
+std::vector<GameObject> objects;
 
 int main()
 {
@@ -79,21 +88,55 @@ int main()
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
+
     // build and compile shaders
     // -------------------------
-    Shader ourShader("shaders/tests/shader_exercise16_mloading.vs", "shaders/tests/shader_exercise16_mloading.fs");
+    Shader ourShaderScene("shaders/tests/shader_exercise16_mloading.vs", "shaders/tests/shader_exercise16_mloading.fs");
 
     // load models
     // -----------
     //Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
-    Model ourModel("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
+    Model ourModel("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
     //Model ourModel("model/backpack/backpack.obj");
     
-    
+    jugador = new GameObject("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/caja/caja.obj",
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        0.0f,
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.5f, 0.5f, 0.5f),
+        true);
+    jugador->AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
+
+    Shader ourShader("shaders/tests/colisionesModelos1.vs", "shaders/tests/colisionesModelos1.fs");
+    Shader bbShader("shaders/tests/shaderCollision.vs", "shaders/tests/shaderCollision.fs");
+
+    glm::vec3 cubePositions[] = {
+        glm::vec3(-4.0f,  4.0f,  0.0f),
+        glm::vec3(-3.0f,  4.0f,  0.0f),
+        glm::vec3(-2.0f,  4.0f,  0.0f),
+        glm::vec3(-1.0f,  4.0f,  0.0f),
+        glm::vec3( 0.0f,  4.0f,  0.0f),
+        glm::vec3( 1.0f,  4.0f,  0.0f),
+        glm::vec3( 2.0f,  4.0f,  0.0f),
+        glm::vec3( 3.0f,  4.0f,  0.0f),
+        glm::vec3( 4.0f,  4.0f,  0.0f)
+    };
+
+    for (const auto& pos : cubePositions)
+    {
+        GameObject aux = GameObject("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/caja/caja.obj",
+            pos,
+            0.0f,
+            glm::vec3(0.0f, 1.0f, 0.0f),
+            glm::vec3(0.5f, 0.5f, 0.5f));
+        aux.AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
+        objects.push_back(aux);
+    }
+
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    camera.MovementSpeed = 10; //Optional. Modify the speed of the camera
+    //camera.MovementSpeed = 15; //Optional. Modify the speed of the camera
 
     // render loop
     // -----------
@@ -106,7 +149,9 @@ int main()
         lastFrame = currentFrame;
 
         // input
-        // -----
+        jugador->Position = camera.Position;
+        jugador->AngleRotation = direction;
+        //std::cout << jugador->Position.x << " " << jugador->Position.y << " " << jugador->Position.z << std::endl;
         processInput(window);
 
         // render
@@ -115,27 +160,64 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
-        ourShader.use();
+        ourShaderScene.use();
 
-        // view/projection transformations
+         //view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
+        ourShaderScene.setMat4("projection", projection);
+        ourShaderScene.setMat4("view", view);
 
         // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        ourShaderScene.setMat4("model", model);
+        ourModel.Draw(ourShaderScene);
+
+        //--------------------------------------------------//
+        // renderizacion de jugador y zombie
+        //--------------------------------------------------//
        
+        // activate shader
+        ourShader.use();
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+
+        // render player
+        model = jugador->GetModelMatrix();
+        ourShader.setMat4("model", model);
+        jugador->Render(ourShader);
+
+        // Render player's Bounding Boxes
+        bbShader.use();
+        bbShader.setMat4("model", model);
+        bbShader.setMat4("view", view);
+        bbShader.setMat4("projection", projection);
+        jugador->RenderBoundingBoxes(bbShader);
+
+
+        // render cubes
+        for (auto& object : objects)
+        {
+            ourShader.use();
+            model = object.GetModelMatrix();
+            ourShader.setMat4("model", model);
+            object.Render(ourShader);
+
+            // Render cube's bounding boxes
+            bbShader.use();
+            bbShader.setMat4("model", model);
+            object.RenderBoundingBoxes(bbShader);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    delete jugador;
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -158,6 +240,23 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+
+
+    // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
+    // Se verifica si existe una colision
+    // Se permite o deniega el bloqueo de movimiento
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        direction = -camera.Yaw + 90.0f;
+
+        DoCollisions(objects, jugador, &camera);
+    }
+
+    //If I want to stay in ground level (xz plane)
+    camera.Position.y = 4.0f;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
