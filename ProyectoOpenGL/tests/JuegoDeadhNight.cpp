@@ -30,7 +30,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
-void setupPointLight(Shader& lightingShader, std::vector<glm::vec3> pointLightPositions, unsigned int limite);
+void configureLightShader(Shader& shader);
+void setupPointLight(Shader& shader, std::vector<glm::vec3> pointLightPositions, unsigned int limite);
 
 
 // settings
@@ -159,11 +160,10 @@ int main()
    
     //----------------------------------SHADERS----------------------------------------//
 
-    Shader ourShaderScene("shaders/tests/shader_exercise16_mloading.vs", "shaders/tests/shader_exercise16_mloading.fs");
-    Shader lightingShader("shaders/tests/objetoLuzLuna.vs", "shaders/tests/objetoLuzLuna.fs");
+    Shader shaderScene("shaders/tests/objetoLuzLuna.vs", "shaders/tests/objetoLuzLuna.fs");
+    Shader shaderObject("shaders/tests/objetoLuzLuna.vs", "shaders/tests/objetoLuzLuna.fs");
+    Shader bbShader("shaders/tests/shaderCollision.vs", "shaders/tests/shaderCollision.fs");
     Shader lightCubeShader("shaders/tests/cuboLuz-LuzLuna.vs", "shaders/tests/cuboLuz-LuzLuna.fs");
-    Shader shaderJugador("shaders/tests/objetoLuzLuna.vs", "shaders/tests/objetoLuzLuna.fs");
-    Shader bbShader("shaders/tests/objetoLuzLuna.vs", "shaders/tests/objetoLuzLuna.fs");
 
     // --------------------------------------------------------------------------------//
 
@@ -366,30 +366,30 @@ int main()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //ourShaderScene.use();
+        //shaderScene.use();
 
         // //view/projection transformations
         //glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         //glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
-        //ourShaderScene.setMat4("projection", projection);
-        //ourShaderScene.setMat4("view", view);
+        //shaderScene.setMat4("projection", projection);
+        //shaderScene.setMat4("view", view);
 
         //// render the loaded model
         //glm::mat4 model = glm::mat4(1.0f);
         //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	
-        //ourShaderScene.setMat4("model", model);
-        //modeloEscena.Draw(ourShaderScene);
+        //shaderScene.setMat4("model", model);
+        //modeloEscena.Draw(shaderScene);
   
         ////*****************************************renderización de jugador y zombie***********************************************************/
        
-        //shaderJugador.use();
-        //shaderJugador.setMat4("projection", projection);
-        //shaderJugador.setMat4("view", view);
+        //shaderObject.use();
+        //shaderObject.setMat4("projection", projection);
+        //shaderObject.setMat4("view", view);
 
         //// render player
         //model = jugador->GetModelMatrix();
-        //shaderJugador.setMat4("model", model);
-        //jugador->Render(shaderJugador);
+        //shaderObject.setMat4("model", model);
+        //jugador->Render(shaderObject);
 
         ////Render player's Bounding Boxes
         //bbShader.use();
@@ -401,10 +401,10 @@ int main()
         //// render cubes
         //for (auto& object : objects)
         //{
-        //    shaderJugador.use();
+        //    shaderObject.use();
         //    model = object.GetModelMatrix();
-        //    shaderJugador.setMat4("model", model);
-        //    object.Render(shaderJugador);
+        //    shaderObject.setMat4("model", model);
+        //    object.Render(shaderObject);
 
         //    // Render cube's bounding boxes
         //    bbShader.use();
@@ -413,53 +413,34 @@ int main()
         //}
 
 
-        //***************************************RENDERIZADO DE CUBOS DE LUZ**********************************************************//
+        //********************************AGREGANDO PROPIEDADES DE LUZ A SHADERS*******************************************//
+        configureLightShader(shaderScene);
+        configureLightShader(shaderObject);
+        //*****************************FIN AGREGANDO PROPIEDADES DE LUZ A SHADERS*******************************************//
 
-        lightingShader.use();
-        lightingShader.setVec3("viewPos", camera.Position);
-        lightingShader.setFloat("shininess", 4.0f);
 
-        // directional light
-        lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        lightingShader.setVec3("dirLight.ambient", moonColors[0]);
-        lightingShader.setVec3("dirLight.diffuse", moonColors[1]);
-        lightingShader.setVec3("dirLight.specular", moonColors[2]);
-
-        // point light 1
-        setupPointLight(lightingShader, pointLightPositions, (unsigned int)pointLightPositions.size());
-
-        // spotLight
-        lightingShader.setVec3("spotLight.position", camera.Position);
-        lightingShader.setVec3("spotLight.direction", camera.Front);
-        lightingShader.setVec3("spotLight.ambient", spotColors[0]);
-        lightingShader.setVec3("spotLight.diffuse", spotColors[1]);
-        lightingShader.setVec3("spotLight.specular", spotColors[2]);
-        lightingShader.setFloat("spotLight.constant", 1.0f);
-        lightingShader.setFloat("spotLight.linear", 0.09);
-        lightingShader.setFloat("spotLight.quadratic", 0.032);
-        lightingShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(10.0f)));
-        lightingShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(18.0f)));
-
-        // view/projection transformations
+        //**************************CONFIGURANDO VIEWPORT Y PROJECTION***************************************************//
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
+        //************************FIN CONFIGURANDO VIEWPORT Y PROJECTION***************************************************//
 
+        
+        
         // world transformation - ESCENA
+        shaderScene.setMat4("projection", projection);
+        shaderScene.setMat4("view", view);
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        lightingShader.setMat4("model", model);
-        modeloEscena.Draw(lightCubeShader);
+        shaderScene.setMat4("model", model);
+        modeloEscena.Draw(shaderScene);
 
         // world transformation - JUGADOR
-        shaderJugador.use();
-        shaderJugador.setMat4("projection", projection);
-        shaderJugador.setMat4("view", view);
-        // render player
+        shaderObject.use();
+        shaderObject.setMat4("projection", projection);
+        shaderObject.setMat4("view", view);
         model = jugador->GetModelMatrix();
-        shaderJugador.setMat4("model", model);
-        jugador->Render(shaderJugador);
+        shaderObject.setMat4("model", model);
+        jugador->Render(shaderObject);
 
 
         //Render player's Bounding Boxes
@@ -474,10 +455,10 @@ int main()
         
         for (auto& object : objects)
         {
-            shaderJugador.use();
+            shaderObject.use();
             model = object.GetModelMatrix();
-            shaderJugador.setMat4("model", model);
-            object.Render(shaderJugador);
+            shaderObject.setMat4("model", model);
+            object.Render(shaderObject);
 
             // Render cube's bounding boxes
             bbShader.use();
@@ -485,8 +466,8 @@ int main()
             object.RenderBoundingBoxes(bbShader);
         }
 
-        // world transformation - RENDERIZADO DE CUBOS DE LUZ
 
+        // world transformation - RENDERIZADO DE CUBOS DE LUZ
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
@@ -587,19 +568,46 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(yoffset);
 }
 
+void configureLightShader(Shader& shader)
+{
+    shader.use();
+    shader.setVec3("viewPos", camera.Position);
+    shader.setFloat("shininess", 4.0f);
 
-void setupPointLight(Shader& lightingShader, std::vector<glm::vec3> pointLightPositions, unsigned int limite)
+    // directional light
+    shader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+    shader.setVec3("dirLight.ambient", moonColors[0]);
+    shader.setVec3("dirLight.diffuse", moonColors[1]);
+    shader.setVec3("dirLight.specular", moonColors[2]);
+
+    // point light 1
+    setupPointLight(shader, pointLightPositions, (unsigned int)pointLightPositions.size());
+
+    // spotLight
+    shader.setVec3("spotLight.position", camera.Position);
+    shader.setVec3("spotLight.direction", camera.Front);
+    shader.setVec3("spotLight.ambient", spotColors[0]);
+    shader.setVec3("spotLight.diffuse", spotColors[1]);
+    shader.setVec3("spotLight.specular", spotColors[2]);
+    shader.setFloat("spotLight.constant", 1.0f);
+    shader.setFloat("spotLight.linear", 0.09);
+    shader.setFloat("spotLight.quadratic", 0.032);
+    shader.setFloat("spotLight.cutOff", glm::cos(glm::radians(10.0f)));
+    shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(18.0f)));
+}
+
+void setupPointLight(Shader& shader, std::vector<glm::vec3> pointLightPositions, unsigned int limite)
 {
 
     // Point lights
     for (unsigned int i = 0; i < limite; i++)
     {
-        lightingShader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
-        lightingShader.setVec3("pointLights[" + std::to_string(i) + "].ambient", fireColors[0]);
-        lightingShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", fireColors[1]);
-        lightingShader.setVec3("pointLights[" + std::to_string(i) + "].specular", fireColors[2]);
-        lightingShader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-        lightingShader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.14f);
-        lightingShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.07f);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", fireColors[0]);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", fireColors[1]);
+        shader.setVec3("pointLights[" + std::to_string(i) + "].specular", fireColors[2]);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.14f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.07f);
     }
 }
