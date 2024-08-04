@@ -1,0 +1,66 @@
+# Blender 4.2.0 MTL File: 'nemesis.blend'
+# www.blender.org
+
+newmtl body002
+Ns 159.999985
+Ka 0.050000 0.050000 0.050000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/body002_baseColor.png
+map_Bump -bm 1.000000 C:/body002_normal.png
+
+newmtl body003
+Ns 159.999985
+Ka 0.050000 0.050000 0.050000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/body003_baseColor.png
+
+newmtl body01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/body01_baseColor.png
+map_Bump -bm 1.000000 C:/body01_normal.png
+
+newmtl coat
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd textures/coat_baseColor.png
+map_d C:/coat_baseColor.png
+
+newmtl head
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/head_baseColor.png
+map_Bump -bm 1.000000 C:/head_normal.png
+
+newmtl upperbody
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/upperbody_baseColor.png
+map_Bump -bm 1.000000 C:/upperbody_normal.png
