@@ -31,7 +31,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void configureLightShader(Shader& shader);
-void setupPointLight(Shader& shader, std::vector<glm::vec3> pointLightPositions, unsigned int limite);
+void setupPointLight(Shader& shader);
 
 
 // settings
@@ -67,6 +67,13 @@ float umbralProximidad = 2.0f;
 glm::vec3 colorFogata(1.0f, 0.63f, 0.23f); //color falso
 
 // Ambient, diffuse and specular colors
+std::vector<glm::vec3> pointLightPositions = {
+    glm::vec3(0.0f, 4.0f, 0.0f),
+    glm::vec3(1.0f, 4.0f, 0.0f),
+    glm::vec3(2.0f, 4.0f, 0.0f),
+    glm::vec3(3.0f, 4.0f, 0.0f)
+};
+
 glm::vec3 moonColors[] = {
     glm::vec3(0.05f, 0.05f, 0.05f),
     glm::vec3(0.44f, 0.44f, 0.83f),
@@ -172,13 +179,13 @@ int main()
     // --------------------------------MODELOS ----------------------------------------//
      
     //Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
-    Model modeloEscena("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
-    Model objetoCaja("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/caja/caja.obj");
+    Model modeloEscena("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
+    //Model objetoCaja("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj");
     //Model ourModel("model/backpack/backpack.obj");
 
      // --------------------------------------------------------------------------------//
     
-    jugador = new GameObject("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/caja/caja.obj",
+    jugador = new GameObject("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj",
         glm::vec3(0.0f, 0.0f, 0.0f),
         0.0f,
         glm::vec3(0.0f, 1.0f, 0.0f),
@@ -200,17 +207,10 @@ int main()
         glm::vec3( 4.0f,  4.0f,  0.0f)
     };
 
-    std::vector<glm::vec3> pointLightPositions = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(1.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 0.0f, 0.0f),
-        glm::vec3(3.0f, 0.0f, 0.0f)
-    };
-
 
     for (const auto& pos : cubePositions)
     {
-        GameObject aux = GameObject("C:/Users/stive/Documents/GitHub/ProyectoOpenGL/models/caja/caja.obj",
+        GameObject aux = GameObject("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj",
             pos,
             0.0f,
             glm::vec3(0.0f, 1.0f, 0.0f),
@@ -581,7 +581,7 @@ void configureLightShader(Shader& shader)
     shader.setVec3("dirLight.specular", moonColors[2]);
 
     // point light 1
-    setupPointLight(shader, pointLightPositions, (unsigned int)pointLightPositions.size());
+    setupPointLight(shader);
 
     // spotLight
     shader.setVec3("spotLight.position", camera.Position);
@@ -596,9 +596,9 @@ void configureLightShader(Shader& shader)
     shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(18.0f)));
 }
 
-void setupPointLight(Shader& shader, std::vector<glm::vec3> pointLightPositions, unsigned int limite)
+void setupPointLight(Shader& shader)
 {
-
+    unsigned int limite = (unsigned int)pointLightPositions.size();
     // Point lights
     for (unsigned int i = 0; i < limite; i++)
     {
