@@ -54,6 +54,8 @@ float direction = -camera.Yaw + 90.0f;
 GameObject* jugador = nullptr;
 std::vector<GameObject> objects;
 
+// Variable para acercar o alejarse cuando se presiona el click derecho
+bool estaApuntando = false;
 
 //----------------------------FLASH LIGHT --------------------------------//
 glm::vec3 lightPos(1.0f, 4.0f, 0.0f);
@@ -181,42 +183,75 @@ int main()
     // --------------------------------MODELOS ----------------------------------------//
      
     //Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
-    Model modeloEscena("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
+    //Model modeloEscena("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
     Model modeloFuego("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/fuego/Fuego.obj");
-    //Model objetoCaja("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj");
-    //Model ourModel("model/backpack/backpack.obj");
+    
+    // --------------------------------ENEMIGOS ----------------------------------------//
+    GameObject zombie("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/zombie/zombie.obj",
+        glm::vec3(159.0f, 1.0f, 11.0f),
+        0.0f,
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.5f, 0.5f, 0.5f),
+        true);
+    //zombi.AddBoundingBox(glm::vec3(0.3f, 0.7f, 0.3f), glm::vec3(0.0f));
+    zombie.Scale = glm::vec3(2.5f);
+    zombie.AngleRotation = -90.0f;
+    zombie.AddBoundingBox(glm::vec3(0.3f, 0.7f, 0.3f), glm::vec3(0.0f));
+
+    GameObject nemesis("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/nemesis/nemesis.obj",
+        glm::vec3(307.0f, -4.0f, -239.0f),
+        0.0f,
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.5f, 0.5f, 0.5f),
+        true);
+    nemesis.Scale = glm::vec3(40.0f);
+    nemesis.AngleRotation = -45.0;
+    nemesis.AddBoundingBox(glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.0f));
+    objects.push_back(nemesis);
 
 
+    // --------------------------------COLISIONES ----------------------------------------//
     // CUADROS PARA COLISIONES BASADOS EN CAJA
     GameObject colisiones("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj");
-    colisiones.AddBoundingBox(glm::vec3(7.0f, 20.0f, 21.0f), glm::vec3(-36.5, 0.0f, 10.5f));        // AB
-    colisiones.AddBoundingBox(glm::vec3(53.0f, 20.0f, 5.0f), glm::vec3(-6.5f, 0.0f, -2.5f));        // AC
-    colisiones.AddBoundingBox(glm::vec3(10.0f, 20.0f, 82.0f), glm::vec3(15.5f, 0.0f, -41.5f));      // CD
-    colisiones.AddBoundingBox(glm::vec3(34.0f, 20.0f, 6.0f), glm::vec3(37.0f, 0.0f, -85.0f));       // DE
-    colisiones.AddBoundingBox(glm::vec3(6.0f, 20.0f, 62.0f), glm::vec3(57.0f, 0.0f, -50.0f));       // EF
-    colisiones.AddBoundingBox(glm::vec3(106.0f, 20.0f, 2.0f), glm::vec3(107.0f, 0.0f, -19.0f));     // FG
-    colisiones.AddBoundingBox(glm::vec3(4.0f, 20.0f, 18.0f), glm::vec3(162.0f, 0.0f, -9.0f));       // GH
-    colisiones.AddBoundingBox(glm::vec3(122.0f, 20.0f, 6.0f), glm::vec3(196.5f, 0.0f, -3.0f));      // HI
-    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 257.0f), glm::vec3(229.5f, 0.0f, -128.5f));    // IJ
-    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 113.0f), glm::vec3(288.5f, 0.0f, -259.5f));    // JK
-    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 53.0f), glm::vec3(347.5f, 0.0f, -230.5f));     // KL
-    colisiones.AddBoundingBox(glm::vec3(77.0f, 20.0f, 5.0f), glm::vec3(306.5f, 0.0f, -201.5f));     // LM
-    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 203.0f), glm::vec3(270.5f, 0.0f, -102.5f));    // MP
-    colisiones.AddBoundingBox(glm::vec3(111.0f, 20.0f, 5.0f), glm::vec3(323.5f, 0.0f, -3.5f));      // PN
-    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 22.0f), glm::vec3(381.5f, 0.0f, 10.5f));       // NO
-    colisiones.AddBoundingBox(glm::vec3(412.0f, 20.0f, 4.0f), glm::vec3(173.0f, 0.0f, 23.0f));      // OB
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 0.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 2.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 4.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 6.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 8.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 10.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 12.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 14.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 16.0f));
+
+    //colisiones.AddBoundingBox(glm::vec3(7.0f, 20.0f, 21.0f), glm::vec3(-36.5, 0.0f, 10.5f));        // AB
+    //colisiones.AddBoundingBox(glm::vec3(53.0f, 20.0f, 5.0f), glm::vec3(-6.5f, 0.0f, -2.5f));        // AC
+    //colisiones.AddBoundingBox(glm::vec3(10.0f, 20.0f, 82.0f), glm::vec3(15.5f, 0.0f, -41.5f));      // CD
+    //colisiones.AddBoundingBox(glm::vec3(34.0f, 20.0f, 6.0f), glm::vec3(37.0f, 0.0f, -85.0f));       // DE
+    //colisiones.AddBoundingBox(glm::vec3(6.0f, 20.0f, 62.0f), glm::vec3(57.0f, 0.0f, -50.0f));       // EF
+    //colisiones.AddBoundingBox(glm::vec3(106.0f, 20.0f, 2.0f), glm::vec3(107.0f, 0.0f, -19.0f));     // FG
+    //colisiones.AddBoundingBox(glm::vec3(4.0f, 20.0f, 18.0f), glm::vec3(162.0f, 0.0f, -9.0f));       // GH
+    //colisiones.AddBoundingBox(glm::vec3(122.0f, 20.0f, 6.0f), glm::vec3(196.5f, 0.0f, -3.0f));      // HI
+    //colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 257.0f), glm::vec3(229.5f, 0.0f, -128.5f));    // IJ
+    //colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 113.0f), glm::vec3(288.5f, 0.0f, -259.5f));    // JK
+    //colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 53.0f), glm::vec3(347.5f, 0.0f, -230.5f));     // KL
+    //colisiones.AddBoundingBox(glm::vec3(77.0f, 20.0f, 5.0f), glm::vec3(306.5f, 0.0f, -201.5f));     // LM
+    //colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 203.0f), glm::vec3(270.5f, 0.0f, -102.5f));    // MP
+    //colisiones.AddBoundingBox(glm::vec3(111.0f, 20.0f, 5.0f), glm::vec3(323.5f, 0.0f, -3.5f));      // PN
+    //colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 22.0f), glm::vec3(381.5f, 0.0f, 10.5f));       // NO
+    //colisiones.AddBoundingBox(glm::vec3(412.0f, 20.0f, 4.0f), glm::vec3(173.0f, 0.0f, 23.0f));      // OB
     objects.push_back(colisiones);
 
 
      // --------------------------------------------------------------------------------//
     
-    jugador = new GameObject("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj",
+    jugador = new GameObject("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/JillValentine/JillValentine.obj",
         glm::vec3(0.0f, 0.0f, 0.0f),
         0.0f,
         glm::vec3(0.0f, 1.0f, 0.0f),
         glm::vec3(0.5f, 0.5f, 0.5f),
         true);
-    jugador->AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
+    jugador->AddBoundingBox(glm::vec3(0.3f, 0.7f, 0.3f), glm::vec3(0.0f));
+    jugador->Scale = glm::vec3(1.5f, 1.5f, 1.5f);
 
     
 
@@ -232,108 +267,9 @@ int main()
         glm::vec3( 4.0f,  4.0f,  0.0f)
     };
 
-
-    /*for (const auto& pos : cubePositions)
-    {
-        GameObject aux = GameObject("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj",
-            pos,
-            0.0f,
-            glm::vec3(0.0f, 1.0f, 0.0f),
-            glm::vec3(0.5f, 0.5f, 0.5f));
-        aux.AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
-        objects.push_back(aux);
-    }*/
-
-    ////-----------------------------------------------VAOS-------------------------------------------------------//
-    //float verticesTextura1[] = {
-    //    // positions                // normals          // texture coords
-    //                //atras
-    //    -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.5f,
-    //     0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.5f,
-    //     0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.66f,
-    //     0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.66f,
-    //    -0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.66f,
-    //    -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.5f,
-
-    //    //delante
-    //    -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.5f,
-    //     0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.5f,
-    //     0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.67f,
-    //     0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.67f,
-    //    -0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.67f,
-    //    -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.5f,
-
-    //    //izquierda
-    //    -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.67f,
-    //    -0.5f,  0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.66f,
-    //    -0.5f, -0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.5f,
-    //    -0.5f, -0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.5f,
-    //    -0.5f, -0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.5f,
-    //    -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.67f,
-
-    //    //derecha
-    //    0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.67f,
-    //    0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.67f,
-    //    0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.5f,
-    //    0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.5f,
-    //    0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.5f,
-    //    0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.67f,
-
-    //    //abajo
-    //    -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.26f,
-    //     0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.26f,
-    //     0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.5f,
-    //     0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.5f,
-    //    -0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.5f,
-    //    -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.26f,
-
-    //    //arriba
-    //    -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.67f,
-    //     0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.67f,
-    //     0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.92f,
-    //     0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.92f,
-    //    -0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.92f,
-    //    -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.67f
-    //};
-    //
-    //unsigned int VAO, VBO1;
-    //glGenVertexArrays(1, &VAO);
-
-    ///*  Primer VBO  */
-    //glGenBuffers(1, &VBO1);
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTextura1), verticesTextura1, GL_STATIC_DRAW);
-    //glBindVertexArray(VAO);
-    //// position attribute
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
-    //// normal attribute
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    //glEnableVertexAttribArray(1);
-
-    ////texture attribute
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    //glEnableVertexAttribArray(2);
-
-    //glBindBuffer(GL_ARRAY_BUFFER, 0); // Desenlazar VBO
-
-    //unsigned int lightCubeVAO;
-    //glGenVertexArrays(1, &lightCubeVAO);
-    //glBindVertexArray(lightCubeVAO);
-    //// tenga en cuenta que actualizamos la zancada del atributo de posición de la lámpara para reflejar 
-    //// los datos actualizados del búfer
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
-
-    //// Desenlazar VAO
-    //glBindVertexArray(0);
-    ////---------------------------------------------------END VAOS-------------------------------------------------------------------------//
-
-
      ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
 
-  // Inicializar el motor de sonido
+    // Inicializar el motor de sonido
     engine = irrklang::createIrrKlangDevice();
     if (!engine) {
         std::cerr << "No se pudo inicializar el motor de sonido." << std::endl;
@@ -363,20 +299,18 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    camera.MovementSpeed = 25;
+    camera.MovementSpeed = 20;
 
     // render loop
     while (!glfwWindowShouldClose(window))
     {
-
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        camera.MovementSpeed = 40;
 
         jugador->Position = camera.Position;
-        jugador->AngleRotation = direction;
-        //std::cout << jugador->Position.x << " " << jugador->Position.y << " " << jugador->Position.z << std::endl;
+        jugador->AngleRotation = direction + 90.0f;
+
         processInput(window);
 
         ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
@@ -392,53 +326,6 @@ int main()
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //shaderScene.use();
-
-        // //view/projection transformations
-        //glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        //glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
-        //shaderScene.setMat4("projection", projection);
-        //shaderScene.setMat4("view", view);
-
-        //// render the loaded model
-        //glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	
-        //shaderScene.setMat4("model", model);
-        //modeloEscena.Draw(shaderScene);
-  
-        ////*****************************************renderización de jugador y zombie***********************************************************/
-       
-        //shaderObject.use();
-        //shaderObject.setMat4("projection", projection);
-        //shaderObject.setMat4("view", view);
-
-        //// render player
-        //model = jugador->GetModelMatrix();
-        //shaderObject.setMat4("model", model);
-        //jugador->Render(shaderObject);
-
-        ////Render player's Bounding Boxes
-        //bbShader.use();
-        //bbShader.setMat4("model", model);
-        //bbShader.setMat4("view", view);
-        //bbShader.setMat4("projection", projection);
-        //jugador->RenderBoundingBoxes(bbShader);
-
-        //// render cubes
-        //for (auto& object : objects)
-        //{
-        //    shaderObject.use();
-        //    model = object.GetModelMatrix();
-        //    shaderObject.setMat4("model", model);
-        //    object.Render(shaderObject);
-
-        //    // Render cube's bounding boxes
-        //    bbShader.use();
-        //    bbShader.setMat4("model", model);
-        //    object.RenderBoundingBoxes(bbShader);
-        //}
-
-
         //********************************AGREGANDO PROPIEDADES DE LUZ A SHADERS*******************************************//
         configureLightShader(shaderScene);
         configureLightShader(shaderObject);
@@ -447,7 +334,9 @@ int main()
 
         //**************************CONFIGURANDO VIEWPORT Y PROJECTION***************************************************//
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 500.0f);
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
+        glm::mat4 view = glm::mat4(1.0f);
+        if (!estaApuntando) view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, -4.0f)) * camera.GetViewMatrix();
+        else view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, -1.0f, 15.0f)) * camera.GetViewMatrix();
         //************************FIN CONFIGURANDO VIEWPORT Y PROJECTION***************************************************//
 
         
@@ -458,7 +347,7 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         shaderScene.setMat4("model", model);
-        modeloEscena.Draw(shaderScene);
+        //modeloEscena.Draw(shaderScene);
 
         // world transformation - JUGADOR
         shaderObject.use();
@@ -475,9 +364,29 @@ int main()
         bbShader.setMat4("view", view);
         bbShader.setMat4("projection", projection);
         jugador->RenderBoundingBoxes(bbShader);
+
+        // world transformation - ENEMIGOS
+
+        // para que se mueva al rededor del tiempo
+        float time = glfwGetTime();
+        float translado = 10.0f * (sin(time * 0.5f) + 1.0f);
+
+        glm::mat4 tZombi = glm::translate(glm::mat4(1.0f), glm::vec3(translado, 0.0f, 0.0f));
+
+        shaderObject.use();
+        shaderObject.setMat4("projection", projection);
+        shaderObject.setMat4("view", view);
+        model = tZombi * zombie.GetModelMatrix();
+        shaderObject.setMat4("model", model);
+        zombie.Render(shaderObject);
+
+        shaderObject.use();
+        model = nemesis.GetModelMatrix();
+        shaderObject.setMat4("model", model);
+        nemesis.Render(shaderObject);
          
          
-        // world transformation - ZOMBIES
+        // world transformation - Obstaculos transparentes
         
         for (auto& object : objects)
         {
@@ -526,7 +435,7 @@ int main()
     return 0;
 }
 
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -540,6 +449,8 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) camera.MovementSpeed = 40;
+    else camera.MovementSpeed = 20;
 
     // Si se pulsa cualquier tecla de direccion se actualiza el angulo del personaje
     // Se verifica si existe una colision
@@ -548,17 +459,20 @@ void processInput(GLFWwindow *window)
         glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {  
+    {
 
         DoCollisions(objects, jugador, &camera);
         direction = -camera.Yaw + 90.0f;
         if (!engine->isCurrentlyPlaying(stepSound)) {
             engine->play2D(stepSound, false);
         }
-        
+
     }
 
-    camera.Position.y = 3.0f;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) estaApuntando = true;
+    else estaApuntando = false;
+
+    camera.Position.y = 0.5f;
 }
 
 

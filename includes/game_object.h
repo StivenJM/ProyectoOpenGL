@@ -217,13 +217,13 @@ public:
 
     void RenderBoundingBoxes(Shader& shader)
     {
-        //for (auto& bb : this->BoundingBoxes)
-        //{
-        //    // render
-        //    bb.Draw(shader);
-        //    bb.DrawAxis(shader, 5.0f);
-        //}
-        this->BoundingBoxes[1].Draw(shader);
+        for (auto& bb : this->BoundingBoxes)
+        {
+            // render
+            bb.Draw(shader);
+            bb.DrawAxis(shader, 5.0f);
+        }
+        /*this->BoundingBoxes[1].Draw(shader);*/
     }
 
     glm::mat4 GetModelMatrix() const 
@@ -306,7 +306,7 @@ glm::vec3 CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
             {
                 // Reaccionar a las colisiones
                 glm::vec3 penetration = glm::vec3(0.0f);
-                glm::vec3 direction = one.Position - two.Position;
+                glm::vec3 direction = one.Position - (two.Position + b2.position);
                 glm::vec2 a = glm::vec2(direction.x, direction.z);
 
                 float intervalAStart = std::numeric_limits<float>::max();
@@ -332,9 +332,9 @@ glm::vec3 CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
                 penetration = magnitudePenetration * glm::normalize(direction);
 
                 // La sensitividad debe ir disminuyendo a medida que los objetos con los que se colisiona crecen
-                float longitudSeparacion = (float)sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
-                float funcion = 1 / (20 * longitudSeparacion);
-                return funcion * penetration;            
+                /*float longitudSeparacion = (float)sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+                float funcion = 1 / (20 * longitudSeparacion);*/
+                return 0.5f * penetration;            
             }
         }
     }
