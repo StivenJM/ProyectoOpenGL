@@ -15,4 +15,5 @@ Brindar a nuestros usuarios la libertad y las oportunidades necesarias para traz
 Aspiramos a crear un futuro en el que nuestros juegos sean un punto de inflexión, inspirando a millones de personas a explotar y potenciar su creatividad. Queremos construir un universo de juegos que motive a los jugadores a explorar nuevas ideas y disfrutar de la diversión sin límites.
 ## Descripción del Proyecto
 
-Este proyecto es una aplicación multimedia interactiva (videojuego) desarrollada en OpenGL para el examen bimestral 2 de Computación Gráfica. El producto incluye todos los conceptos revisados en clase, como texturas, visualización 3D, colores, materiales, mapas de luz, luces puntuales y luces de flash. También se han integrado al menos cuatro modelos importados para enriquecer la experiencia visual.
+Este proyecto es una aplicación multimedia interactiva (videojuego) desarrollada en OpenGL para el examen bimestral 2 de Computación Gráfica. El producto incluye todos los conceptos revisados en clase, como texturas, visualización 3D, colores, materiales, mapas de luz, luces puntuales y luces de flash.
+
