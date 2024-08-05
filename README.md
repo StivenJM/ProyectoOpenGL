@@ -68,6 +68,19 @@ Los siguientes modelos 3D se han importado y utilizado en el proyecto:
 <img src="https://github.com/user-attachments/assets/329ee2ad-af9e-43b1-b5cd-bb4d631a5b95" alt="Descripción de la imagen" width="400" />
 </p>
 
+## Colisiones
+
+La implementación de las colisiones en **Urban Nightmare: The Last Heaven** garantiza una experiencia de juego realista y desafiante. Las colisiones se gestionan de la siguiente manera:
+
+- **Personaje Principal y Paredes:** El personaje principal, Jill Valentine, no puede atravesar las paredes de la ciudad, lo que obliga al jugador a navegar adecuadamente por el entorno.
+- **Personaje Principal y Enemigos:** Jill Valentine colisiona con enemigos como Nemesis y los zombies, lo que puede resultar en daño al jugador o afectar su movimiento.
+- **Enemigos y Entorno:** Los enemigos también están sujetos a colisiones con el entorno, lo que puede influir en su comportamiento y rutas de movimiento.
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/61c7bddf-1e16-49cc-ac38-92ee474f11a6" alt="Descripción de la imagen" width="400" />
+</p>
+
+
 ## Recursos Incluidos
 
 - **Texturas:** Carpeta `textures/` con todas las texturas utilizadas.
