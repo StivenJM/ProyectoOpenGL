@@ -332,9 +332,8 @@ glm::vec3 CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
                 penetration = magnitudePenetration * glm::normalize(direction);
 
                 // La sensitividad debe ir disminuyendo a medida que los objetos con los que se colisiona crecen
-                /*float longitudSeparacion = (float)sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
-                float funcion = 1 / (20 * longitudSeparacion);*/
-                return 0.5f * penetration;            
+                if (magnitudePenetration < 2.0f) return 0.5f * penetration;
+                else return 0.01f * penetration;
             }
         }
     }

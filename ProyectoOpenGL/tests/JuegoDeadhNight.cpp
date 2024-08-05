@@ -183,7 +183,7 @@ int main()
     // --------------------------------MODELOS ----------------------------------------//
      
     //Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
-    //Model modeloEscena("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
+    Model modeloEscena("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
     Model modeloFuego("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/fuego/Fuego.obj");
     
     // --------------------------------ENEMIGOS ----------------------------------------//
@@ -213,15 +213,15 @@ int main()
     // --------------------------------COLISIONES ----------------------------------------//
     // CUADROS PARA COLISIONES BASADOS EN CAJA
     GameObject colisiones("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj");
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 0.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 2.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 4.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 6.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 8.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 10.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 12.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 14.0f));
-    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 0.0f, 16.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 0.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 2.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 4.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 6.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 8.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 10.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 12.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 14.0f));
+    colisiones.AddBoundingBox(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-33.0, 2.5f, 16.0f));
 
     //colisiones.AddBoundingBox(glm::vec3(7.0f, 20.0f, 21.0f), glm::vec3(-36.5, 0.0f, 10.5f));        // AB
     //colisiones.AddBoundingBox(glm::vec3(53.0f, 20.0f, 5.0f), glm::vec3(-6.5f, 0.0f, -2.5f));        // AC
@@ -255,17 +255,13 @@ int main()
 
     
 
-    glm::vec3 cubePositions[] = {
-        glm::vec3(-4.0f,  4.0f,  0.0f),
-        glm::vec3(-3.0f,  4.0f,  0.0f),
-        glm::vec3(-2.0f,  4.0f,  0.0f),
-        glm::vec3(-1.0f,  4.0f,  0.0f),
-        glm::vec3( 0.0f,  4.0f,  0.0f),
-        glm::vec3( 1.0f,  4.0f,  0.0f),
-        glm::vec3( 2.0f,  4.0f,  0.0f),
-        glm::vec3( 3.0f,  4.0f,  0.0f),
-        glm::vec3( 4.0f,  4.0f,  0.0f)
-    };
+    glm::vec3 zombiePositions[] = {
+        glm::vec3(265.0f,  1.0f,  -27.0f),
+        glm::vec3(370.0f,  1.0f,  15.0f),
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(20.0f,  1.0f,  100.0f),
+        glm::vec3( 300.0f,  1.0f,  0.0f)
+    };                    
 
      ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
 
@@ -347,7 +343,7 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         shaderScene.setMat4("model", model);
-        //modeloEscena.Draw(shaderScene);
+        modeloEscena.Draw(shaderScene);
 
         // world transformation - JUGADOR
         shaderObject.use();
@@ -420,6 +416,19 @@ int main()
             modeloFuego.Draw(lightCubeShader);
         }
 
+        // Dibujar zombies
+        glm::vec3 aux = zombie.Position;
+        shaderObject.use();
+        for (glm::vec3 p : zombiePositions)
+        {
+            shaderObject.setMat4("projection", projection);
+            shaderObject.setMat4("view", view);
+            zombie.Position = p;
+            model = zombie.GetModelMatrix();
+            shaderObject.setMat4("model", model);
+            zombie.Render(shaderObject);
+        }
+
         //----------------------------------------------------------FIN RENDERIZADO CUBOS DE LUZ------------------------------------------------------------//
 
 
@@ -472,7 +481,7 @@ void processInput(GLFWwindow* window)
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) estaApuntando = true;
     else estaApuntando = false;
 
-    camera.Position.y = 0.5f;
+    camera.Position.y = 2.5f;
 }
 
 
