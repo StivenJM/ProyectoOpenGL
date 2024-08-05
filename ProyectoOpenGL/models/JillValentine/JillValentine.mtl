@@ -1,0 +1,178 @@
+# Blender 4.2.0 MTL File: 'jillAnimada.blend'
+# www.blender.org
+
+newmtl 4__holster_lower_1_0_0
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/4__holster_lower_1_0_0_baseColor.jpeg
+
+newmtl 4_boots_1_0_0
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/4_boots_1_0_0_baseColor.jpeg
+
+newmtl 4_head_0_2_0_0
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/4_head_0_2_0_0_baseColor.jpeg
+
+newmtl 4_torso_0_2_0_0
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/4_torso_0_2_0_0_baseColor.jpeg
+
+newmtl 5_eyebrows_1_0_0
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/5_eyebrows_1_0_0_baseColor.jpeg
+
+newmtl 7__educt_0_3_0_0
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/7__educt_0_3_0_0_baseColor.jpeg
+
+newmtl aspero
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/aspero_baseColor.png
+map_Bump -bm 1.000000 textures/aspero_normal.png
+
+newmtl base
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/base_baseColor.png
+map_Bump -bm 1.000000 textures/base_normal.png
+
+newmtl boton
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/boton_baseColor.png
+map_Bump -bm 1.000000 textures/boton_normal.png
+
+newmtl cartucho
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/cartucho_baseColor.png
+map_Bump -bm 1.000000 textures/cartucho_normal.png
+
+newmtl corredera
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/corredera_baseColor.png
+map_Bump -bm 1.000000 textures/corredera_normal.png
+
+newmtl corredera_2
+Ns 99.739998
+Ka 1.000000 1.000000 1.000000
+Kd 0.496933 0.496933 0.496933
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+
+newmtl gatillo
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/gatillo_baseColor.png
+map_Bump -bm 1.000000 textures/gatillo_normal.png
+
+newmtl material
+Ns 488.519012
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 3
+map_Kd textures/material_baseColor.png
+
+newmtl pieza_3
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/pieza_3_baseColor.png
+
+newmtl pieza_pequea_1
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/pieza_pequea_1_baseColor.png
+
+newmtl pieza_pequea_2
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/pieza_pequea_2_baseColor.png
