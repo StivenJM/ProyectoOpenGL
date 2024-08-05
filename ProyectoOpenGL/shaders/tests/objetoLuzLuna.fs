@@ -47,7 +47,7 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
 
-#define MAX_POINT_LIGHTS 4
+#define MAX_POINT_LIGHTS 6
 
 uniform vec3 viewPos;
 uniform DirLight dirLight;

@@ -223,7 +223,7 @@ public:
         //    bb.Draw(shader);
         //    bb.DrawAxis(shader, 5.0f);
         //}
-        this->BoundingBoxes[1].Draw(shader);
+        this->BoundingBoxes[0].Draw(shader);
     }
 
     glm::mat4 GetModelMatrix() const 
@@ -333,7 +333,7 @@ glm::vec3 CheckCollision(GameObject& one, GameObject& two) // AABB - AABB
 
                 // La sensitividad debe ir disminuyendo a medida que los objetos con los que se colisiona crecen
                 float longitudSeparacion = (float)sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
-                float funcion = 1 / (20 * longitudSeparacion);
+                float funcion = 1 / (20 * longitudSeparacion * longitudSeparacion);
                 return funcion * penetration;            
             }
         }

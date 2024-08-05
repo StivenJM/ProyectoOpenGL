@@ -1,10 +1,11 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform vec3 lightColor;
+in vec2 TexCoords;
+
+uniform sampler2D texture_diffuse1;
 
 void main()
-{
-    FragColor = vec4(lightColor, 1.0); // usar el color de la luz configurado desde el C++
+{    
+    FragColor = texture(texture_diffuse1, TexCoords);
 }
-

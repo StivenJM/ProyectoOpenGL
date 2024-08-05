@@ -68,10 +68,12 @@ glm::vec3 colorFogata(1.0f, 0.63f, 0.23f); //color falso
 
 // Ambient, diffuse and specular colors
 std::vector<glm::vec3> pointLightPositions = {
-    glm::vec3(0.0f, 4.0f, 0.0f),
-    glm::vec3(1.0f, 4.0f, 0.0f),
-    glm::vec3(2.0f, 4.0f, 0.0f),
-    glm::vec3(3.0f, 4.0f, 0.0f)
+    glm::vec3(  5.22f, 3.5f,    0.96f), 
+    glm::vec3(110.60f, 2.5f, -  7.91f),
+    glm::vec3(225.50f, 3.0f,   23.65f),
+    glm::vec3(271.89f, 3.5f, - 90.05f),
+    glm::vec3(248.27f, 3.0f, -101.40f),
+    glm::vec3(284.23f, 2.5f, -214.85f)
 };
 
 glm::vec3 moonColors[] = {
@@ -180,8 +182,31 @@ int main()
      
     //Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
     Model modeloEscena("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/EscenaCiudad/EscenaCiudad.obj");
+    Model modeloFuego("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/fuego/Fuego.obj");
     //Model objetoCaja("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj");
     //Model ourModel("model/backpack/backpack.obj");
+
+
+    // CUADROS PARA COLISIONES BASADOS EN CAJA
+    GameObject colisiones("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj");
+    colisiones.AddBoundingBox(glm::vec3(7.0f, 20.0f, 21.0f), glm::vec3(-36.5, 0.0f, 10.5f));        // AB
+    colisiones.AddBoundingBox(glm::vec3(53.0f, 20.0f, 5.0f), glm::vec3(-6.5f, 0.0f, -2.5f));        // AC
+    colisiones.AddBoundingBox(glm::vec3(10.0f, 20.0f, 82.0f), glm::vec3(15.5f, 0.0f, -41.5f));      // CD
+    colisiones.AddBoundingBox(glm::vec3(34.0f, 20.0f, 6.0f), glm::vec3(37.0f, 0.0f, -85.0f));       // DE
+    colisiones.AddBoundingBox(glm::vec3(6.0f, 20.0f, 62.0f), glm::vec3(57.0f, 0.0f, -50.0f));       // EF
+    colisiones.AddBoundingBox(glm::vec3(106.0f, 20.0f, 2.0f), glm::vec3(107.0f, 0.0f, -19.0f));     // FG
+    colisiones.AddBoundingBox(glm::vec3(4.0f, 20.0f, 18.0f), glm::vec3(162.0f, 0.0f, -9.0f));       // GH
+    colisiones.AddBoundingBox(glm::vec3(122.0f, 20.0f, 6.0f), glm::vec3(196.5f, 0.0f, -3.0f));      // HI
+    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 257.0f), glm::vec3(229.5f, 0.0f, -128.5f));    // IJ
+    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 113.0f), glm::vec3(288.5f, 0.0f, -259.5f));    // JK
+    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 53.0f), glm::vec3(347.5f, 0.0f, -230.5f));     // KL
+    colisiones.AddBoundingBox(glm::vec3(77.0f, 20.0f, 5.0f), glm::vec3(306.5f, 0.0f, -201.5f));     // LM
+    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 203.0f), glm::vec3(270.5f, 0.0f, -102.5f));    // MP
+    colisiones.AddBoundingBox(glm::vec3(111.0f, 20.0f, 5.0f), glm::vec3(323.5f, 0.0f, -3.5f));      // PN
+    colisiones.AddBoundingBox(glm::vec3(5.0f, 20.0f, 22.0f), glm::vec3(381.5f, 0.0f, 10.5f));       // NO
+    colisiones.AddBoundingBox(glm::vec3(412.0f, 20.0f, 4.0f), glm::vec3(173.0f, 0.0f, 23.0f));      // OB
+    objects.push_back(colisiones);
+
 
      // --------------------------------------------------------------------------------//
     
@@ -208,7 +233,7 @@ int main()
     };
 
 
-    for (const auto& pos : cubePositions)
+    /*for (const auto& pos : cubePositions)
     {
         GameObject aux = GameObject("D:/Daniel/Documentos/Visual Studio 2022/proyectoCompGrafica/ProyectoOpenGL/ProyectoOpenGL/models/caja/caja.obj",
             pos,
@@ -217,93 +242,93 @@ int main()
             glm::vec3(0.5f, 0.5f, 0.5f));
         aux.AddBoundingBox(glm::vec3(1.0f), glm::vec3(0.0f));
         objects.push_back(aux);
-    }
+    }*/
 
-    //-----------------------------------------------VAOS-------------------------------------------------------//
-    float verticesTextura1[] = {
-        // positions                // normals          // texture coords
-                    //atras
-        -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.5f,
-         0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.5f,
-         0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.66f,
-         0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.66f,
-        -0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.66f,
-        -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.5f,
+    ////-----------------------------------------------VAOS-------------------------------------------------------//
+    //float verticesTextura1[] = {
+    //    // positions                // normals          // texture coords
+    //                //atras
+    //    -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.5f,
+    //     0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.5f,
+    //     0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.66f,
+    //     0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.3385f, 0.66f,
+    //    -0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.66f,
+    //    -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,     0.1427f, 0.5f,
 
-        //delante
-        -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.5f,
-         0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.5f,
-         0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.67f,
-         0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.67f,
-        -0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.67f,
-        -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.5f,
+    //    //delante
+    //    -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.5f,
+    //     0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.5f,
+    //     0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.67f,
+    //     0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.73f, 0.67f,
+    //    -0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.67f,
+    //    -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,     0.5333f, 0.5f,
 
-        //izquierda
-        -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.67f,
-        -0.5f,  0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.66f,
-        -0.5f, -0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.5f,
-        -0.5f, -0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.5f,
-        -0.5f, -0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.5f,
-        -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.67f,
+    //    //izquierda
+    //    -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.67f,
+    //    -0.5f,  0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.66f,
+    //    -0.5f, -0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.5f,
+    //    -0.5f, -0.5f, -0.5f,    -1.0f,  0.0f,  0.0f,    0.3385f, 0.5f,
+    //    -0.5f, -0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.5f,
+    //    -0.5f,  0.5f,  0.5f,    -1.0f,  0.0f,  0.0f,    0.5333f, 0.67f,
 
-        //derecha
-        0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.67f,
-        0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.67f,
-        0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.5f,
-        0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.5f,
-        0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.5f,
-        0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.67f,
+    //    //derecha
+    //    0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.67f,
+    //    0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.67f,
+    //    0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.5f,
+    //    0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,     0.925f, 0.5f,
+    //    0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.5f,
+    //    0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,     0.73f, 0.67f,
 
-        //abajo
-        -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.26f,
-         0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.26f,
-         0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.5f,
-         0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.5f,
-        -0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.5f,
-        -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.26f,
+    //    //abajo
+    //    -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.26f,
+    //     0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.26f,
+    //     0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.5f,
+    //     0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.73f, 0.5f,
+    //    -0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.5f,
+    //    -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,     0.5333f, 0.26f,
 
-        //arriba
-        -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.67f,
-         0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.67f,
-         0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.92f,
-         0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.92f,
-        -0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.92f,
-        -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.67f
-    };
-    
-    unsigned int VAO, VBO1;
-    glGenVertexArrays(1, &VAO);
+    //    //arriba
+    //    -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.67f,
+    //     0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.67f,
+    //     0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.92f,
+    //     0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.73f, 0.92f,
+    //    -0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.92f,
+    //    -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,     0.5333f, 0.67f
+    //};
+    //
+    //unsigned int VAO, VBO1;
+    //glGenVertexArrays(1, &VAO);
 
-    /*  Primer VBO  */
-    glGenBuffers(1, &VBO1);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTextura1), verticesTextura1, GL_STATIC_DRAW);
-    glBindVertexArray(VAO);
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    ///*  Primer VBO  */
+    //glGenBuffers(1, &VBO1);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(verticesTextura1), verticesTextura1, GL_STATIC_DRAW);
+    //glBindVertexArray(VAO);
+    //// position attribute
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
+    //// normal attribute
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    //glEnableVertexAttribArray(1);
 
-    //texture attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    ////texture attribute
+    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    //glEnableVertexAttribArray(2);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Desenlazar VBO
+    //glBindBuffer(GL_ARRAY_BUFFER, 0); // Desenlazar VBO
 
-    unsigned int lightCubeVAO;
-    glGenVertexArrays(1, &lightCubeVAO);
-    glBindVertexArray(lightCubeVAO);
-    // tenga en cuenta que actualizamos la zancada del atributo de posición de la lámpara para reflejar 
-    // los datos actualizados del búfer
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    //unsigned int lightCubeVAO;
+    //glGenVertexArrays(1, &lightCubeVAO);
+    //glBindVertexArray(lightCubeVAO);
+    //// tenga en cuenta que actualizamos la zancada del atributo de posición de la lámpara para reflejar 
+    //// los datos actualizados del búfer
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
 
-    // Desenlazar VAO
-    glBindVertexArray(0);
-    //---------------------------------------------------END VAOS-------------------------------------------------------------------------//
+    //// Desenlazar VAO
+    //glBindVertexArray(0);
+    ////---------------------------------------------------END VAOS-------------------------------------------------------------------------//
 
 
      ///////////////////////////////////////////MUSICA/////////////////////////////////////////////////////////////////
@@ -338,7 +363,7 @@ int main()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    camera.MovementSpeed = 15;
+    camera.MovementSpeed = 25;
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -347,6 +372,7 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        camera.MovementSpeed = 40;
 
         jugador->Position = camera.Position;
         jugador->AngleRotation = direction;
@@ -420,7 +446,7 @@ int main()
 
 
         //**************************CONFIGURANDO VIEWPORT Y PROJECTION***************************************************//
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 500.0f);
         glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -5.0f)) * camera.GetViewMatrix();
         //************************FIN CONFIGURANDO VIEWPORT Y PROJECTION***************************************************//
 
@@ -471,18 +497,18 @@ int main()
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
-        lightCubeShader.setVec3("lightColor", colorFogata);
+        //lightCubeShader.setVec3("lightColor", colorFogata);
 
 
-        // draw lights.
-        glBindVertexArray(lightCubeVAO);
-        for (unsigned int i = 0; i < 4; i++)
+        //// draw lights.
+        //glBindVertexArray(lightCubeVAO);
+        for (unsigned int i = 0; i < 6; i++)
         {
             model = glm::mat4(1.0f);
             model = glm::translate(model, pointLightPositions[i]);
-            model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+            model = glm::scale(model, glm::vec3(1.0f)); // Make it a smaller cube
             lightCubeShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            modeloFuego.Draw(lightCubeShader);
         }
 
         //----------------------------------------------------------FIN RENDERIZADO CUBOS DE LUZ------------------------------------------------------------//
@@ -532,7 +558,7 @@ void processInput(GLFWwindow *window)
         
     }
 
-    camera.Position.y = 4.0f;
+    camera.Position.y = 3.0f;
 }
 
 
@@ -607,7 +633,7 @@ void setupPointLight(Shader& shader)
         shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", fireColors[1]);
         shader.setVec3("pointLights[" + std::to_string(i) + "].specular", fireColors[2]);
         shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-        shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.14f);
-        shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.07f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.001f);
+        shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.002f);
     }
 }
