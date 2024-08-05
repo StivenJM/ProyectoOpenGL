@@ -44,6 +44,14 @@ Los siguientes modelos 3D se han importado y utilizado en el proyecto:
 </p>
   
 - **Fuego:** Efectos de fuego para animaciones y dinámicas de la escena.
+
+  
 - **Jill Valentine:** Personaje principal del juego, basado en el modelo de Jill Valentine.
+  
+<p align="center">
+<img src="https://github.com/user-attachments/assets/3cc6af7b-8c5d-41a7-bc87-66ffc559281f" alt="Descripción de la imagen" width="100" />
+</p>
+
+
 - **Nemesis:** Un antagonista imponente que añade desafío al juego.
 - **Zombie:** Un enemigo clásico para la ambientación del juego.
